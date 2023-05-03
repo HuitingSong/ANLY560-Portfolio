@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.189">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>🐰Huiting Song’s Portfolio - Financial Time Series Models (ARCH/GARCH)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./deeplearning.qmd" rel="next">
+<link href="./saf.qmd" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="site_libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.10.1/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
+<script src="site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">🐰Huiting Song’s Portfolio</span>
+    </a>
+  </div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Financial Time Series Models (ARCH/GARCH)</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation docked overflow-auto">
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Profile</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Home</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./about.html" class="sidebar-item-text sidebar-link">About Me</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  ANLY 560
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Time Series Project</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./homets.html" class="sidebar-item-text sidebar-link">Home</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./intro.html" class="sidebar-item-text sidebar-link">Introduction</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data_source.html" class="sidebar-item-text sidebar-link">Data Sources</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data_viz.html" class="sidebar-item-text sidebar-link">Data Visualization</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./EDA.html" class="sidebar-item-text sidebar-link">Exploratory Data Analysis</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./model.html" class="sidebar-item-text sidebar-link">ARMA/ARIMA/SARIMA Models</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./arimax.html" class="sidebar-item-text sidebar-link">ARIMAX/SARIMAX/VARs</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./saf.qmd" class="sidebar-item-text sidebar-link">Spectral Analysis and Filtering</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./financial.html" class="sidebar-item-text sidebar-link active">Financial Time Series Models (ARCH/GARCH)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./deeplearning.qmd" class="sidebar-item-text sidebar-link">Deep Learning for TS</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./conclusion.qmd" class="sidebar-item-text sidebar-link">Conclusion</a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#model-fitting" id="toc-model-fitting" class="nav-link active" data-scroll-target="#model-fitting">Model Fitting</a></li>
+  <li><a href="#discussion-insight" id="toc-discussion-insight" class="nav-link" data-scroll-target="#discussion-insight">Discussion &amp; Insight</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Financial Time Series Models (ARCH/GARCH)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>hvi <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">'./Data/Cleaned/HVI_cleaned.csv'</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>hvi <span class="ot">&lt;-</span> hvi <span class="sc">%&gt;%</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(state <span class="sc">==</span> <span class="st">'CA'</span><span class="sc">&amp;</span> region_name <span class="sc">==</span><span class="st">'Los Angeles'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(hvi,<span class="st">"./Data/Cleaned/hvi_ca.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_ly</span>(hvi, <span class="at">x =</span> <span class="sc">~</span>date, <span class="at">y =</span> <span class="sc">~</span>index, <span class="at">type =</span> <span class="st">'scatter'</span>, <span class="at">mode =</span> <span class="st">'lines'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layout</span>(<span class="at">title =</span> <span class="st">"Los Angeles House Value Index (2000 - 2022)"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">xaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">"Date"</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">yaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">"House Value Index"</span>,<span class="at">tickformat =</span> <span class="st">',.0fK'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-6a5cfc6decaabae5510b" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-6a5cfc6decaabae5510b">{"x":{"visdat":{"723b6501672f":["function () ","plotlyVisDat"]},"cur_data":"723b6501672f","attrs":{"723b6501672f":{"x":{},"y":{},"mode":"lines","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Los Angeles House Value Index (2000 - 2022)","xaxis":{"domain":[0,1],"automargin":true,"title":"Date"},"yaxis":{"domain":[0,1],"automargin":true,"title":"House Value Index","tickformat":",.0fK"},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2000-01-31","2000-02-29","2000-03-31","2000-04-30","2000-05-31","2000-06-30","2000-07-31","2000-08-31","2000-09-30","2000-10-31","2000-11-30","2000-12-31","2001-01-31","2001-02-28","2001-03-31","2001-04-30","2001-05-31","2001-06-30","2001-07-31","2001-08-31","2001-09-30","2001-10-31","2001-11-30","2001-12-31","2002-01-31","2002-02-28","2002-03-31","2002-04-30","2002-05-31","2002-06-30","2002-07-31","2002-08-31","2002-09-30","2002-10-31","2002-11-30","2002-12-31","2003-01-31","2003-02-28","2003-03-31","2003-04-30","2003-05-31","2003-06-30","2003-07-31","2003-08-31","2003-09-30","2003-10-31","2003-11-30","2003-12-31","2004-01-31","2004-02-29","2004-03-31","2004-04-30","2004-05-31","2004-06-30","2004-07-31","2004-08-31","2004-09-30","2004-10-31","2004-11-30","2004-12-31","2005-01-31","2005-02-28","2005-03-31","2005-04-30","2005-05-31","2005-06-30","2005-07-31","2005-08-31","2005-09-30","2005-10-31","2005-11-30","2005-12-31","2006-01-31","2006-02-28","2006-03-31","2006-04-30","2006-05-31","2006-06-30","2006-07-31","2006-08-31","2006-09-30","2006-10-31","2006-11-30","2006-12-31","2007-01-31","2007-02-28","2007-03-31","2007-04-30","2007-05-31","2007-06-30","2007-07-31","2007-08-31","2007-09-30","2007-10-31","2007-11-30","2007-12-31","2008-01-31","2008-02-29","2008-03-31","2008-04-30","2008-05-31","2008-06-30","2008-07-31","2008-08-31","2008-09-30","2008-10-31","2008-11-30","2008-12-31","2009-01-31","2009-02-28","2009-03-31","2009-04-30","2009-05-31","2009-06-30","2009-07-31","2009-08-31","2009-09-30","2009-10-31","2009-11-30","2009-12-31","2010-01-31","2010-02-28","2010-03-31","2010-04-30","2010-05-31","2010-06-30","2010-07-31","2010-08-31","2010-09-30","2010-10-31","2010-11-30","2010-12-31","2011-01-31","2011-02-28","2011-03-31","2011-04-30","2011-05-31","2011-06-30","2011-07-31","2011-08-31","2011-09-30","2011-10-31","2011-11-30","2011-12-31","2012-01-31","2012-02-29","2012-03-31","2012-04-30","2012-05-31","2012-06-30","2012-07-31","2012-08-31","2012-09-30","2012-10-31","2012-11-30","2012-12-31","2013-01-31","2013-02-28","2013-03-31","2013-04-30","2013-05-31","2013-06-30","2013-07-31","2013-08-31","2013-09-30","2013-10-31","2013-11-30","2013-12-31","2014-01-31","2014-02-28","2014-03-31","2014-04-30","2014-05-31","2014-06-30","2014-07-31","2014-08-31","2014-09-30","2014-10-31","2014-11-30","2014-12-31","2015-01-31","2015-02-28","2015-03-31","2015-04-30","2015-05-31","2015-06-30","2015-07-31","2015-08-31","2015-09-30","2015-10-31","2015-11-30","2015-12-31","2016-01-31","2016-02-29","2016-03-31","2016-04-30","2016-05-31","2016-06-30","2016-07-31","2016-08-31","2016-09-30","2016-10-31","2016-11-30","2016-12-31","2017-01-31","2017-02-28","2017-03-31","2017-04-30","2017-05-31","2017-06-30","2017-07-31","2017-08-31","2017-09-30","2017-10-31","2017-11-30","2017-12-31","2018-01-31","2018-02-28","2018-03-31","2018-04-30","2018-05-31","2018-06-30","2018-07-31","2018-08-31","2018-09-30","2018-10-31","2018-11-30","2018-12-31","2019-01-31","2019-02-28","2019-03-31","2019-04-30","2019-05-31","2019-06-30","2019-07-31","2019-08-31","2019-09-30","2019-10-31","2019-11-30","2019-12-31","2020-01-31","2020-02-29","2020-03-31","2020-04-30","2020-05-31","2020-06-30","2020-07-31","2020-08-31","2020-09-30","2020-10-31","2020-11-30","2020-12-31","2021-01-31","2021-02-28","2021-03-31","2021-04-30","2021-05-31","2021-06-30","2021-07-31","2021-08-31","2021-09-30","2021-10-31","2021-11-30","2021-12-31","2022-01-31","2022-02-28","2022-03-31","2022-04-30","2022-05-31","2022-06-30","2022-07-31","2022-08-31","2022-09-30","2022-10-31","2022-11-30","2022-12-31"],"y":[235321,235542,236660,238746,241282,243602,245996,248684,251201,253272,255292,257306,258805,260219,262011,264616,267172,269683,272305,275131,277673,280363,282813,285481,287503,289799,292660,296438,300654,304795,310110,315716,321721,327042,332420,337584,341737,345390,349776,354295,360055,364488,371119,377963,385741,391513,397246,403359,410725,418118,425761,435371,447326,458987,469294,478681,489937,500719,508074,514311,519101,527337,534960,543534,550544,559188,568849,579462,589900,601708,609999,617221,623528,629165,635369,639435,645716,650399,653373,655142,652977,652426,652222,654424,655255,655138,653597,653150,650465,647697,642300,636869,630895,623627,617162,610342,605965,599540,588918,574006,557289,542249,526772,513006,502558,493369,484251,471579,463012,457412,454819,451244,447707,442355,438278,435928,435471,435631,437432,442132,444042,443247,444058,446311,450640,448736,446329,440751,435908,431057,426803,425790,425089,425841,424073,422803,417911,417207,415698,412970,407775,402797,402156,402000,401939,401859,401600,402420,403637,406011,408737,410437,412225,416062,420738,428250,434192,443588,452734,463590,472375,481543,490452,500489,508358,514084,519412,523519,529383,531647,534144,533705,535258,536136,537832,536040,534892,535280,538855,543096,548543,554025,558577,559403,562234,565060,565063,565397,566346,572241,577003,583818,588292,593076,595442,600965,605138,610158,609454,610880,613624,620730,625055,628096,632515,636256,639370,641066,644986,649296,650583,652603,655222,661344,668740,674927,681168,688102,695080,700751,703284,706267,706479,707862,709389,714073,716983,716940,716510,714200,712145,711701,712994,715498,713057,713024,714364,720388,723994,728316,732411,740485,748546,755009,752458,749179,752748,763854,777799,789020,796636,801144,804289,812023,820470,833157,849721,869901,892325,905941,915684,918539,922915,928517,933513,942502,958517,977905,995212,997168,997462,982958,971301,956808,953225,950715],"mode":"lines","type":"scatter","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>Over the last two decades, the HVI has shown an overall upward trend with some fluctuations in between. From 2000, the house value in Los Angeles steadily increased. Over a six-year period, home values climbed at a rate of $67,000 per year. It wasn’t until 2007 that home values began to decrease significantly. The depressed housing market and negative home price trends continued through April 2012. After that peiod of time, the house value started to climbing upward gradually。Then, the house value turned to decrease again from July 2022.</p>
+<p>For the obvious dip after 2006, there were several factors that could have contributed to the value decline:</p>
+<ul>
+<li><p>The Great Recession: The Great Recession, which lasted from 2007 to 2009, had a significant impact on the housing market. Many homeowners lost their homes due to foreclosure, and the housing market experienced a significant downturn. The impact of the recession can be seen in the HVI, which shows a decline in home values during this period.</p></li>
+<li><p>The Housing Bubble: The housing bubble, which occurred from the late 1990s to the mid-2000s, was characterized by rapid increases in home prices driven by speculation and easy access to credit. When the bubble burst in 2006, home values plummeted, leading to a significant decline in the HVI.</p></li>
+</ul>
+<p>For the normal fluctuation in the house value index, here are some factors that may contribute to the changes:</p>
+<ul>
+<li><p>Population Growth: California is a populous state that has experienced significant population growth over the years. Population growth can drive up demand for homes, leading to increased competition and higher home values. Therefore, the house value index will directly increas.</p></li>
+<li><p>Interest Rates: As we have analyzed in the ARIMA/SARIMA model sector on the mortgage rate and the house value index in California, the relationship of these two terms are clearly stated. For example, when interest rates are low, it can make mortgages more affordable, leading to increased demand and higher home values. Conversely, when interest rates are high, it can make mortgages less affordable, leading to decreased demand and lower home values. While the great recession period, the mortgage rate was extremely high, so the less people can afford the house and then the house value index turned to decrease.</p></li>
+<li><p>Housing Supply and Demand: Housing supply and demand dynamics can change rapidly due to real events such as changes in the economy, population growth, and local market conditions. For example, when there is a shortage of available housing, demand for homes will be high, leading to increased competition and higher home values. Conversely, when there is an oversupply of homes, demand will be low, leading to decreased competition and lower home values.</p></li>
+</ul>
+<p>Overall, the house value index can be affected by a wide range of factors, including economic events, regulatory changes, and population size.</p>
+<p>In this section, we will implement ARCH/GARCH models to model and forecast the volatility of the house value time series data. Our target will still be the house value index in Los Angeles.</p>
+<section id="model-fitting" class="level2">
+<h2 class="anchored" data-anchor-id="model-fitting">Model Fitting</h2>
+<section id="returns" class="level4">
+<h4 class="anchored" data-anchor-id="returns">returns</h4>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>hvi_ts <span class="ot">&lt;-</span> <span class="fu">ts</span>(hvi<span class="sc">$</span>index,<span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2000</span>,<span class="dv">1</span>),<span class="at">frequency =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate the Returns</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>returns <span class="ot">=</span> <span class="fu">log</span>(hvi_ts) <span class="sc">%&gt;%</span> <span class="fu">diff</span>()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(returns) <span class="sc">+</span><span class="fu">ggtitle</span>(<span class="st">"Returns"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="look-at-the-acf-pacf-plots-of-the-returns" class="level4">
+<h4 class="anchored" data-anchor-id="look-at-the-acf-pacf-plots-of-the-returns">Look at the ACF, PACF plots of the returns</h4>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggAcf</span>(returns,<span class="dv">40</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggPacf</span>(returns,<span class="dv">40</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>When we look closer at the ACF plot we can see it looks stationary. There is a decaying pattern which indicates a correlation among the lag.</p>
+</section>
+<section id="look-at-the-acf-of-absolute-values-of-the-returns-and-squared-values" class="level4">
+<h4 class="anchored" data-anchor-id="look-at-the-acf-of-absolute-values-of-the-returns-and-squared-values">Look at the ACF of absolute values of the returns and squared values</h4>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggAcf</span>(<span class="fu">abs</span>(returns),<span class="dv">40</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggAcf</span>(returns<span class="sc">^</span><span class="dv">2</span>,<span class="dv">40</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can see clear correlation in both plots. This correlation is comming from the correlation in conditional variation.</p>
+</section>
+<section id="method-1-garchpq-model-fitting" class="level4">
+<h4 class="anchored" data-anchor-id="method-1-garchpq-model-fitting">Method 1: GARCH(p,q) model fitting</h4>
+<p>We fit the ARIMA model first and fit a GARCH model for the residual.</p>
+<p><strong>ArchTest</strong></p>
+<p>We can check for ARCH effects by using the <code>ArchTest()</code> function. We will use a significance level of α=0.05 for our null hypothesis test.The null hypothesis is no ARCH(1) effect.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ArchTest</span>(returns, <span class="at">lags=</span><span class="dv">1</span>, <span class="at">demean=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    ARCH LM-test; Null hypothesis: no ARCH effects
+
+data:  returns
+Chi-squared = 211.49, df = 1, p-value &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Because the p-value is &lt; 0.05, we reject the null hypothesis and conclude the presence of ARCH(1) effects.</p>
+<p><strong>Fitting an ARIMA model</strong></p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># first order differecing</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>hvi.diff <span class="ot">&lt;-</span> <span class="fu">log</span>(hvi_ts) <span class="sc">%&gt;%</span> <span class="fu">diff</span>()</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggAcf</span>(hvi.diff,<span class="dv">40</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggPacf</span>(hvi.diff,<span class="dv">40</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The ACF shows the correlation among the lags and the stationary has not been eleminated, so we need to do the second differencing to make it non-stationary.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># first order differecing</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>hvi.diff2 <span class="ot">&lt;-</span> <span class="fu">log</span>(hvi_ts) <span class="sc">%&gt;%</span> <span class="fu">diff</span>() <span class="sc">%&gt;%</span> <span class="fu">diff</span>()</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggAcf</span>(hvi.diff2,<span class="dv">40</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggPacf</span>(hvi.diff2,<span class="dv">40</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>After the second differencing, we can see the data become non-stationary since we cannot see large correlations.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>ARIMA.c<span class="ot">=</span><span class="cf">function</span>(p1,p2,q1,q2,data){</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>temp<span class="ot">=</span><span class="fu">c</span>()</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>d<span class="ot">=</span><span class="dv">2</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>i<span class="ot">=</span><span class="dv">1</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>temp<span class="ot">=</span> <span class="fu">data.frame</span>()</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>ls<span class="ot">=</span><span class="fu">matrix</span>(<span class="fu">rep</span>(<span class="cn">NA</span>,<span class="dv">6</span><span class="sc">*</span><span class="dv">50</span>),<span class="at">nrow=</span><span class="dv">50</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (p <span class="cf">in</span> p1<span class="sc">:</span>p2)<span class="co">#</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(q <span class="cf">in</span> q1<span class="sc">:</span>q2)<span class="co">#</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span>(d <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">2</span>)<span class="co">#</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span>(p<span class="sc">+</span>d<span class="sc">+</span>q<span class="sc">&lt;=</span><span class="dv">6</span>)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>        model<span class="ot">&lt;-</span> <span class="fu">Arima</span>(data,<span class="at">order=</span><span class="fu">c</span>(p,d,q))</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>        ls[i,]<span class="ot">=</span> <span class="fu">c</span>(p,d,q,model<span class="sc">$</span>aic,model<span class="sc">$</span>bic,model<span class="sc">$</span>aicc)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>        i<span class="ot">=</span>i<span class="sc">+</span><span class="dv">1</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>temp<span class="ot">=</span> <span class="fu">as.data.frame</span>(ls)</span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(temp)<span class="ot">=</span> <span class="fu">c</span>(<span class="st">"p"</span>,<span class="st">"d"</span>,<span class="st">"q"</span>,<span class="st">"AIC"</span>,<span class="st">"BIC"</span>,<span class="st">"AICc"</span>)</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>temp</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#na.omit(log(bts)))</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">ARIMA.c</span>(<span class="dv">0</span>,<span class="dv">3</span>,<span class="dv">0</span>,<span class="dv">3</span>,<span class="at">data=</span><span class="fu">log</span>(hvi_ts))</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>output</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>    p  d  q        AIC        BIC       AICc
+1   0  0  0   202.4689   209.7097   202.5128
+2   0  1  0 -1669.3294 -1665.7127 -1669.3148
+3   0  2  0 -2233.9043 -2230.2912 -2233.8896
+4   0  0  1  -167.7065  -156.8453  -167.6183
+5   0  1  1 -1901.3902 -1894.1567 -1901.3461
+6   0  2  1 -2232.0026 -2224.7763 -2231.9583
+7   0  0  2  -514.7360  -500.2544  -514.5884
+8   0  1  2 -2173.1400 -2162.2897 -2173.0515
+9   0  2  2 -2240.1262 -2229.2868 -2240.0373
+10  0  0  3  -815.4762  -797.3742  -815.2540
+11  0  1  3 -2234.7840 -2220.3169 -2234.6358
+12  0  2  3 -2350.2800 -2335.8275 -2350.1313
+13  1  0  0 -1663.2310 -1652.3698 -1663.1427
+14  1  1  0 -2247.6156 -2240.3821 -2247.5715
+15  1  2  0 -2232.0250 -2224.7988 -2231.9807
+16  1  0  1 -1907.1105 -1892.6289 -1906.9629
+17  1  1  1 -2246.2032 -2235.3529 -2246.1146
+18  1  2  1 -2237.8825 -2227.0431 -2237.7936
+19  1  0  2 -2177.0640 -2158.9620 -2176.8418
+20  1  1  2 -2293.4100 -2278.9429 -2293.2619
+21  1  2  2 -2315.2848 -2300.8323 -2315.1361
+22  1  0  3 -2249.9833 -2228.2609 -2249.6711
+23  1  1  3 -2359.5136 -2341.4298 -2359.2906
+24  1  2  3 -2349.0100 -2330.9444 -2348.7861
+25  2  0  0 -2256.2084 -2241.7268 -2256.0608
+26  2  1  0 -2246.4080 -2235.5577 -2246.3194
+27  2  2  0 -2233.2878 -2222.4484 -2233.1989
+28  2  0  1 -2254.7372 -2236.6352 -2254.5150
+29  2  1  1 -2251.0733 -2236.6062 -2250.9252
+30  2  2  1 -2250.2870 -2235.8344 -2250.1383
+31  2  0  2 -2306.4334 -2284.7110 -2306.1211
+32  2  1  2 -2340.0249 -2321.9410 -2339.8018
+33  2  2  2 -2328.9052 -2310.8396 -2328.6813
+34  2  0  3 -2370.2958 -2344.9530 -2369.8779
+35  2  1  3 -2358.6319 -2336.9312 -2358.3184
+36  3  0  0 -2253.9701 -2235.8681 -2253.7479
+37  3  1  0 -2250.5297 -2236.0626 -2250.3816
+38  3  2  0 -2284.9026 -2270.4501 -2284.7539
+39  3  0  1 -2213.5125 -2191.7901 -2213.2003
+40  3  1  1 -2268.2996 -2250.2158 -2268.0766
+41  3  2  1 -2284.1666 -2266.1010 -2283.9427
+42  3  0  2 -2348.3417 -2322.9989 -2347.9238
+43  3  1  2 -2348.4283 -2326.7277 -2348.1149
+44  3  0  3 -2369.6114 -2340.6482 -2369.0721
+45 NA NA NA         NA         NA         NA
+46 NA NA NA         NA         NA         NA
+47 NA NA NA         NA         NA         NA
+48 NA NA NA         NA         NA         NA
+49 NA NA NA         NA         NA         NA
+50 NA NA NA         NA         NA         NA</code></pre>
+</div>
+</div>
+<p>The model with minimum AIC and AICc is:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>output[<span class="fu">which.min</span>(output<span class="sc">$</span>AIC),]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   p d q       AIC       BIC      AICc
+34 2 0 3 -2370.296 -2344.953 -2369.878</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>output[<span class="fu">which.min</span>(output<span class="sc">$</span>AICc),]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   p d q       AIC       BIC      AICc
+34 2 0 3 -2370.296 -2344.953 -2369.878</code></pre>
+</div>
+</div>
+<p>The model with minimum BIC is:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>output[<span class="fu">which.min</span>(output<span class="sc">$</span>BIC),]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   p d q       AIC       BIC      AICc
+34 2 0 3 -2370.296 -2344.953 -2369.878</code></pre>
+</div>
+</div>
+<p>Through comparing the AIC and BIC, one model is selected - <strong>ARIMA(2,0,3)</strong></p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">auto.arima</span>(<span class="fu">log</span>(hvi_ts))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Series: log(hvi_ts) 
+ARIMA(1,2,4) 
+
+Coefficients:
+         ar1      ma1     ma2      ma3     ma4
+      0.6680  -0.4467  0.0884  -0.8501  0.4995
+s.e.  0.5096   0.5036  0.1286   0.1319  0.3506
+
+sigma^2 = 1.185e-05:  log likelihood = 1179.37
+AIC=-2346.75   AICc=-2346.43   BIC=-2325.07</code></pre>
+</div>
+</div>
+<p>The <code>auto.arima()</code> function choose the model <strong>ARIMA(1,2,4)</strong>. Through model comparison and model diagnosis, we will choose the final model.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ARIMA(2,0,3)</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">log</span>(hvi_ts)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sarima</span>(data, <span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>initial  value -1.074906 
+iter   2 value -1.917676
+iter   3 value -2.097056
+iter   4 value -2.474360
+iter   5 value -3.371030
+iter   6 value -4.463855
+iter   7 value -5.130512
+iter   8 value -5.188018
+iter   9 value -5.208009
+iter  10 value -5.313957
+iter  11 value -5.346526
+iter  12 value -5.358616
+iter  13 value -5.405447
+iter  14 value -5.412848
+iter  15 value -5.416090
+iter  16 value -5.417679
+iter  17 value -5.419625
+iter  18 value -5.420393
+iter  19 value -5.432927
+iter  20 value -5.433643
+iter  21 value -5.435308
+iter  22 value -5.436915
+iter  23 value -5.437050
+iter  24 value -5.437080
+iter  25 value -5.437559
+iter  26 value -5.441718
+iter  27 value -5.448261
+iter  28 value -5.451219
+iter  29 value -5.462281
+iter  30 value -5.468343
+iter  31 value -5.481743
+iter  32 value -5.482276
+iter  33 value -5.482364
+iter  33 value -5.482364
+iter  34 value -5.482365
+iter  34 value -5.482365
+iter  34 value -5.482365
+final  value -5.482365 
+converged
+initial  value -5.394380 
+iter   2 value -5.421678
+iter   3 value -5.441479
+iter   4 value -5.465166
+iter   5 value -5.486436
+iter   6 value -5.510539
+iter   7 value -5.556943
+iter   8 value -5.663555
+iter   9 value -5.687128
+iter  10 value -5.713437
+iter  11 value -5.718661
+iter  12 value -5.724615
+iter  13 value -5.729362
+iter  14 value -5.734361
+iter  15 value -5.734800
+iter  16 value -5.735083
+iter  17 value -5.735366
+iter  18 value -5.735681
+iter  19 value -5.736207
+iter  20 value -5.737327
+iter  21 value -5.737670
+iter  22 value -5.737912
+iter  23 value -5.738111
+iter  24 value -5.738145
+iter  25 value -5.738178
+iter  26 value -5.738212
+iter  27 value -5.738245
+iter  28 value -5.738315
+iter  28 value -5.738315
+final  value -5.738315 
+converged</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in sqrt(diag(fitit$var.coef)): NaNs produced
+
+Warning in sqrt(diag(fitit$var.coef)): NaNs produced</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$fit
+
+Call:
+arima(x = xdata, order = c(p, d, q), seasonal = list(order = c(P, D, Q), period = S), 
+    xreg = xmean, include.mean = FALSE, transform.pars = trans, fixed = fixed, 
+    optim.control = list(trace = trc, REPORT = 1, reltol = tol))
+
+Coefficients:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in sqrt(diag(x$var.coef)): NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         ar1      ar2     ma1     ma2      ma3    xmean
+      1.9633  -0.9641  0.2341  0.2371  -0.6897  13.2719
+s.e.  0.0099   0.0102  0.0202  0.0222   0.0318      NaN
+
+sigma^2 estimated as 1.01e-05:  log likelihood = 1192.15,  aic = -2370.3
+
+$degrees_of_freedom
+[1] 270
+
+$ttable
+      Estimate     SE  t.value p.value
+ar1     1.9633 0.0099 197.3441       0
+ar2    -0.9641 0.0102 -94.5119       0
+ma1     0.2341 0.0202  11.6080       0
+ma2     0.2371 0.0222  10.6678       0
+ma3    -0.6897 0.0318 -21.7064       0
+xmean  13.2719    NaN      NaN     NaN
+
+$AIC
+[1] -8.588028
+
+$AICc
+[1] -8.586897
+
+$BIC
+[1] -8.496207</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ARIMA(1,2,4)</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sarima</span>(data, <span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>initial  value -5.498802 
+iter   2 value -5.643173
+iter   3 value -5.716147
+iter   4 value -5.717848
+iter   5 value -5.718949
+iter   6 value -5.719490
+iter   7 value -5.719571
+iter   8 value -5.719681
+iter   9 value -5.720058
+iter  10 value -5.721054
+iter  11 value -5.722351
+iter  12 value -5.722862
+iter  13 value -5.724120
+iter  14 value -5.724305
+iter  15 value -5.724374
+iter  16 value -5.724434
+iter  17 value -5.724449
+iter  18 value -5.724502
+iter  19 value -5.724594
+iter  20 value -5.724649
+iter  21 value -5.724668
+iter  22 value -5.724670
+iter  22 value -5.724670
+iter  22 value -5.724670
+final  value -5.724670 
+converged
+initial  value -5.722749 
+iter   2 value -5.722934
+iter   3 value -5.723127
+iter   4 value -5.723215
+iter   5 value -5.723219
+iter   6 value -5.723220
+iter   7 value -5.723221
+iter   7 value -5.723221
+iter   7 value -5.723221
+final  value -5.723221 
+converged</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$fit
+
+Call:
+arima(x = xdata, order = c(p, d, q), seasonal = list(order = c(P, D, Q), period = S), 
+    include.mean = !no.constant, transform.pars = trans, fixed = fixed, optim.control = list(trace = trc, 
+        REPORT = 1, reltol = tol))
+
+Coefficients:
+         ar1      ma1     ma2      ma3     ma4
+      0.6680  -0.4467  0.0884  -0.8501  0.4995
+s.e.  0.5096   0.5036  0.1286   0.1319  0.3506
+
+sigma^2 estimated as 1.052e-05:  log likelihood = 1179.37,  aic = -2346.75
+
+$degrees_of_freedom
+[1] 269
+
+$ttable
+    Estimate     SE t.value p.value
+ar1   0.6680 0.5096  1.3109  0.1910
+ma1  -0.4467 0.5036 -0.8871  0.3758
+ma2   0.0884 0.1286  0.6871  0.4926
+ma3  -0.8501 0.1319 -6.4466  0.0000
+ma4   0.4995 0.3506  1.4245  0.1555
+
+$AIC
+[1] -8.56477
+
+$AICc
+[1] -8.563953
+
+$BIC
+[1] -8.485651</code></pre>
+</div>
+</div>
+<p>I’m going to choose <strong>ARIMA(1,2,4)</strong> which is selected by <code>auto.arima()</code> because it has the lowest AIC and the whole model diagnostics are the same. From the Q-Q plot, there is a significant deviation from the straight line in the tails, especially in the lower tail, showing that the distribution of the returns is more heavy-tailed than the normal distribution. And for Ljung-Box statistic plot, p-value should be &gt; 0.05, So that we do not have enough evidence to reject H0. (this is what we look for to say no correlation left). From the plot, except the lag 0, the p-value of all other lags are above 0.05, we can say that there is no correlation. The model is good.</p>
+<p><strong>Fit the GARCH model</strong></p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>arima.fit<span class="ot">&lt;-</span><span class="fu">Arima</span>(data,<span class="at">order=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>))</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>arima.res<span class="ot">&lt;-</span>arima.fit<span class="sc">$</span>residuals</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="fu">acf</span>(arima.res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The acf of residuals does not show any correlation ans stationary.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">acf</span>(arima.res<span class="sc">^</span><span class="dv">2</span>) <span class="co">#clear correlation 3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>There is a clear correlation in lag 3 from the ACF plot of the squared residuals</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pacf</span>(arima.res<span class="sc">^</span><span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>There is a clear correlation in lag 2 from the PACF plot of the squared residuals.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">list</span>() <span class="do">## set counter</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>cc <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (p <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) {</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (q <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>) {</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>model[[cc]] <span class="ot">&lt;-</span> <span class="fu">garch</span>(arima.res,<span class="at">order=</span><span class="fu">c</span>(q,p),<span class="at">trace=</span>F)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>cc <span class="ot">&lt;-</span> cc <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>} </span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a><span class="do">## get AIC values for model evaluation</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>GARCH_AIC <span class="ot">&lt;-</span> <span class="fu">sapply</span>(model, AIC) <span class="do">## model with lowest AIC is the best</span></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a><span class="fu">which</span>(GARCH_AIC <span class="sc">==</span> <span class="fu">min</span>(GARCH_AIC))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 5</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>model[[<span class="fu">which</span>(GARCH_AIC <span class="sc">==</span> <span class="fu">min</span>(GARCH_AIC))]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+garch(x = arima.res, order = c(q, p), trace = F)
+
+Coefficient(s):
+       a0         a1         a2         b1  
+5.627e-06  6.297e-03  1.546e-01  2.875e-01  </code></pre>
+</div>
+</div>
+<p>The minimum AIC choose the model GARCH(2,1).</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">garchFit</span>(<span class="sc">~</span><span class="fu">garch</span>(<span class="dv">2</span>,<span class="dv">1</span>), arima.res,<span class="at">trace =</span> F)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Title:
+ GARCH Modelling 
+
+Call:
+ garchFit(formula = ~garch(2, 1), data = arima.res, trace = F) 
+
+Mean and Variance Equation:
+ data ~ garch(2, 1)
+&lt;environment: 0x1140fff20&gt;
+ [data = arima.res]
+
+Conditional Distribution:
+ norm 
+
+Coefficient(s):
+         mu        omega       alpha1       alpha2        beta1  
+-8.5147e-05   4.9510e-06   2.0805e-02   1.7568e-01   3.6124e-01  
+
+Std. Errors:
+ based on Hessian 
+
+Error Analysis:
+         Estimate  Std. Error  t value Pr(&gt;|t|)  
+mu     -8.515e-05   2.012e-04   -0.423   0.6721  
+omega   4.951e-06   3.110e-06    1.592   0.1114  
+alpha1  2.081e-02   7.740e-02    0.269   0.7881  
+alpha2  1.757e-01   8.375e-02    2.098   0.0359 *
+beta1   3.612e-01   2.926e-01    1.234   0.2170  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Log Likelihood:
+ 1183.666    normalized:  4.288646 
+
+Description:
+ Tue May  2 16:57:30 2023 by user:  
+
+
+Standardised Residuals Tests:
+                                Statistic p-Value     
+ Jarque-Bera Test   R    Chi^2  73.89375  1.110223e-16
+ Shapiro-Wilk Test  R    W      0.9658842 4.007904e-06
+ Ljung-Box Test     R    Q(10)  6.312202  0.7883869   
+ Ljung-Box Test     R    Q(15)  8.535997  0.9005037   
+ Ljung-Box Test     R    Q(20)  11.79333  0.9230058   
+ Ljung-Box Test     R^2  Q(10)  3.793808  0.9561696   
+ Ljung-Box Test     R^2  Q(15)  8.4196    0.9058615   
+ Ljung-Box Test     R^2  Q(20)  8.698732  0.9861412   
+ LM Arch Test       R    TR^2   21.55104  0.04287065  
+
+Information Criterion Statistics:
+      AIC       BIC       SIC      HQIC 
+-8.541061 -8.475474 -8.541702 -8.514742 </code></pre>
+</div>
+</div>
+<p>Since only alpha 2 is significant in 5% significant level, I will try GARCH(2,0)</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">garchFit</span>(<span class="sc">~</span><span class="fu">garch</span>(<span class="dv">2</span>,<span class="dv">0</span>), arima.res,<span class="at">trace =</span> F)) <span class="co">#all significant AIC=-3.834</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Title:
+ GARCH Modelling 
+
+Call:
+ garchFit(formula = ~garch(2, 0), data = arima.res, trace = F) 
+
+Mean and Variance Equation:
+ data ~ garch(2, 0)
+&lt;environment: 0x114f383a8&gt;
+ [data = arima.res]
+
+Conditional Distribution:
+ norm 
+
+Coefficient(s):
+         mu        omega       alpha1       alpha2  
+-2.1616e-05   9.4602e-06   1.0000e-08   1.7970e-01  
+
+Std. Errors:
+ based on Hessian 
+
+Error Analysis:
+         Estimate  Std. Error  t value Pr(&gt;|t|)    
+mu     -2.162e-05   2.018e-04   -0.107   0.9147    
+omega   9.460e-06   1.455e-06    6.501 7.97e-11 ***
+alpha1  1.000e-08   8.523e-02    0.000   1.0000    
+alpha2  1.797e-01   7.994e-02    2.248   0.0246 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Log Likelihood:
+ 1182.91    normalized:  4.285906 
+
+Description:
+ Tue May  2 16:57:30 2023 by user:  
+
+
+Standardised Residuals Tests:
+                                Statistic p-Value     
+ Jarque-Bera Test   R    Chi^2  87.70901  0           
+ Shapiro-Wilk Test  R    W      0.9640227 2.227228e-06
+ Ljung-Box Test     R    Q(10)  6.567237  0.7655707   
+ Ljung-Box Test     R    Q(15)  9.017743  0.8765879   
+ Ljung-Box Test     R    Q(20)  12.71789  0.8891572   
+ Ljung-Box Test     R^2  Q(10)  4.178267  0.9389469   
+ Ljung-Box Test     R^2  Q(15)  8.817101  0.8868848   
+ Ljung-Box Test     R^2  Q(20)  9.001829  0.9828861   
+ LM Arch Test       R    TR^2   25.51447  0.01256454  
+
+Information Criterion Statistics:
+      AIC       BIC       SIC      HQIC 
+-8.542826 -8.490356 -8.543238 -8.521771 </code></pre>
+</div>
+</div>
+<p>Since GARCH(2,0) has a lower AIC and BIC, I would go with GARCH(1,1) to forecast.</p>
+<p><strong>Final Model</strong></p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(arima.fit<span class="ot">&lt;-</span><span class="fu">Arima</span>(data,<span class="at">order=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>),<span class="at">include.drift =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Series: data 
+ARIMA(1,2,4) 
+
+Coefficients:
+         ar1      ma1     ma2      ma3     ma4
+      0.6680  -0.4467  0.0884  -0.8501  0.4995
+s.e.  0.5096   0.5036  0.1286   0.1319  0.3506
+
+sigma^2 = 1.185e-05:  log likelihood = 1179.37
+AIC=-2346.75   AICc=-2346.43   BIC=-2325.07
+
+Training set error measures:
+                        ME        RMSE         MAE           MPE       MAPE
+Training set -6.944367e-05 0.003399012 0.002450715 -0.0004627334 0.01859732
+                   MASE        ACF1
+Training set 0.02302633 -0.05547527</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co">#arima.fit&lt;-Arima(data,order=c(1,2,4))</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="co">#arima.res&lt;-arima.fit$residuals</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(final.fit <span class="ot">&lt;-</span> <span class="fu">garchFit</span>(<span class="sc">~</span><span class="fu">garch</span>(<span class="dv">2</span>,<span class="dv">0</span>), arima.res,<span class="at">trace =</span> F)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Title:
+ GARCH Modelling 
+
+Call:
+ garchFit(formula = ~garch(2, 0), data = arima.res, trace = F) 
+
+Mean and Variance Equation:
+ data ~ garch(2, 0)
+&lt;environment: 0x16da86390&gt;
+ [data = arima.res]
+
+Conditional Distribution:
+ norm 
+
+Coefficient(s):
+         mu        omega       alpha1       alpha2  
+-2.1616e-05   9.4602e-06   1.0000e-08   1.7970e-01  
+
+Std. Errors:
+ based on Hessian 
+
+Error Analysis:
+         Estimate  Std. Error  t value Pr(&gt;|t|)    
+mu     -2.162e-05   2.018e-04   -0.107   0.9147    
+omega   9.460e-06   1.455e-06    6.501 7.97e-11 ***
+alpha1  1.000e-08   8.523e-02    0.000   1.0000    
+alpha2  1.797e-01   7.994e-02    2.248   0.0246 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Log Likelihood:
+ 1182.91    normalized:  4.285906 
+
+Description:
+ Tue May  2 16:57:30 2023 by user:  
+
+
+Standardised Residuals Tests:
+                                Statistic p-Value     
+ Jarque-Bera Test   R    Chi^2  87.70901  0           
+ Shapiro-Wilk Test  R    W      0.9640227 2.227228e-06
+ Ljung-Box Test     R    Q(10)  6.567237  0.7655707   
+ Ljung-Box Test     R    Q(15)  9.017743  0.8765879   
+ Ljung-Box Test     R    Q(20)  12.71789  0.8891572   
+ Ljung-Box Test     R^2  Q(10)  4.178267  0.9389469   
+ Ljung-Box Test     R^2  Q(15)  8.817101  0.8868848   
+ Ljung-Box Test     R^2  Q(20)  9.001829  0.9828861   
+ LM Arch Test       R    TR^2   25.51447  0.01256454  
+
+Information Criterion Statistics:
+      AIC       BIC       SIC      HQIC 
+-8.542826 -8.490356 -8.543238 -8.521771 </code></pre>
+</div>
+</div>
+<ul>
+<li><p>Jarque-Bera Test: This test checks whether the standardized residuals have a normal distribution. In this case, the test statistic is 87.70901 and the p-value is 0, indicating strong evidence against normality.</p></li>
+<li><p>Shapiro-Wilk Test: This test also checks whether the standardized residuals have a normal distribution. In this case, the test statistic is 0.9640227 and the p-value is 2.227228e-06, again indicating strong evidence against normality.</p></li>
+<li><p>Ljung-Box Test: This test checks for autocorrelation in the standardized residuals at various lags. The results show the test statistic, the number of lags tested (Q), and the p-value. The null hypothesis is that there is no autocorrelation in the residuals. In this case, the p-values are all greater than 0.05, suggesting that there is no evidence of significant autocorrelation.</p></li>
+<li><p>LM Arch Test: This test also checks for autocorrelation in the standardized residuals. The test statistic is 25.51447 and the p-value is 0.01256454, indicating evidence of significant autocorrelation.</p></li>
+</ul>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>fit<span class="ot">&lt;-</span><span class="fu">garch</span>(arima.res,<span class="at">order=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">1</span>),<span class="at">trace=</span>F)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">checkresiduals</span>(fit) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(fit<span class="sc">$</span>residuals, <span class="at">pch =</span> <span class="dv">1</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(fit<span class="sc">$</span>residuals, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>There is a significant deviation from the straight line in the tails, especially in the lower tail, showing that the distribution of the returns is more heavy-tailed than the normal distribution. This is ccomply with the density plot above which show a slightly left skewness.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Box.test</span> (fit<span class="sc">$</span>residuals, <span class="at">type =</span> <span class="st">"Ljung"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Box-Ljung test
+
+data:  fit$residuals
+X-squared = 0.037598, df = 1, p-value = 0.8463</code></pre>
+</div>
+</div>
+<p>From the Box-Ljung test, the p-value is above 0.05, we can say that there is no correlation. The model is good.</p>
+<p><strong>Model Formula</strong></p>
+<p>Finally, we choose the ARIMA(1,2,4) + GARCH(2,0) as our best model.</p>
+<p><span class="math inline">\(\sigma(t)^2 = 9.4602 \times 10^{-6} + 1.0000 \times 10^{-8} \times Y(t-1)^2 + 1.7970 \times 10^{-1} \times \sigma(t-1)^2\)</span></p>
+</section>
+<section id="forecast" class="level4">
+<h4 class="anchored" data-anchor-id="forecast">Forecast</h4>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(final.fit, <span class="at">n.ahead =</span> <span class="dv">20</span>, <span class="at">plot=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="financial_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    meanForecast   meanError standardDeviation lowerInterval upperInterval
+1  -2.161603e-05 0.003133353       0.003133353  -0.006162875   0.006119643
+2  -2.161603e-05 0.003076184       0.003076184  -0.006050825   0.006007593
+3  -2.161603e-05 0.003350294       0.003350294  -0.006588071   0.006544839
+4  -2.161603e-05 0.003340760       0.003340760  -0.006569385   0.006526153
+5  -2.161603e-05 0.003387806       0.003387806  -0.006661593   0.006618361
+6  -2.161603e-05 0.003386113       0.003386113  -0.006658277   0.006615044
+7  -2.161603e-05 0.003394503       0.003394503  -0.006674719   0.006631487
+8  -2.161603e-05 0.003394199       0.003394199  -0.006674124   0.006630892
+9  -2.161603e-05 0.003395705       0.003395705  -0.006677075   0.006633843
+10 -2.161603e-05 0.003395650       0.003395650  -0.006676968   0.006633736
+11 -2.161603e-05 0.003395921       0.003395921  -0.006677498   0.006634266
+12 -2.161603e-05 0.003395911       0.003395911  -0.006677479   0.006634247
+13 -2.161603e-05 0.003395960       0.003395960  -0.006677574   0.006634342
+14 -2.161603e-05 0.003395958       0.003395958  -0.006677571   0.006634339
+15 -2.161603e-05 0.003395967       0.003395967  -0.006677588   0.006634356
+16 -2.161603e-05 0.003395966       0.003395966  -0.006677587   0.006634355
+17 -2.161603e-05 0.003395968       0.003395968  -0.006677591   0.006634358
+18 -2.161603e-05 0.003395968       0.003395968  -0.006677590   0.006634358
+19 -2.161603e-05 0.003395968       0.003395968  -0.006677591   0.006634359
+20 -2.161603e-05 0.003395968       0.003395968  -0.006677591   0.006634359</code></pre>
+</div>
+</div>
+<p>My ARIMA(1,2,4)+GARCH(2,0) model is producing a horizontal line during the prediction phase, it could be an indication that the model is not adequately capturing the patterns in the data. A horizontal line suggests that the model is predicting that the variance of the time series will remain constant over time. This could be the case if the model is too simple and does not capture the changing patterns in the data, or if there is not enough variation in the data to support more complex modeling.</p>
+</section>
+</section>
+<section id="discussion-insight" class="level2">
+<h2 class="anchored" data-anchor-id="discussion-insight">Discussion &amp; Insight</h2>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./saf.qmd" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Spectral Analysis and Filtering</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./deeplearning.qmd" class="pagination-link">
+        <span class="nav-page-text">Deep Learning for TS</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">Copyright 2023, HUITING SONG</div>   
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/huiting-song/">
+      <i class="bi bi-linkedin" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="./hs1119@georgetown.edu">
+      <i class="bi bi-gmail" role="img">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+</body></html>
