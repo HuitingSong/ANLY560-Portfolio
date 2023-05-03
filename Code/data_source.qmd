@@ -1,0 +1,87 @@
+---
+title: Data Source
+code-fold: true
+links:
+    - icon: github
+      text: Github
+      href: https://github.com/HuitingSong
+---
+
+Data sources for this project mainly come from authorities (FHFA), real estate agent (Zillow), data website (Kaggle's), and the organization (National Association of Realtors). All the sources are raw data which means no smoothed and no processing. There are two sectors for introducing the datasets --- House Data and Mortgage Data.
+
+## Housing Data
+
+### From [Zillow Group, Inc.,](https://www.zillow.com/research/data/)
+
+```{r,echo=FALSE,include=FALSE}
+library(tidyr)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+```
+
+#### **1. Home Value Index - Mid-Tier**
+
+The Zillow Home Value Index (ZHVI) is designed to capture the value of a typical property across the nation or the neighborhood, not just the homes that sold, and we do so by drawing information from the full distribution of homes in a given region. ZHVI measures monthly changes in property-level Zestimates, capturing both the level and appreciation of home values across a wide variety of geographies and housing types (e.g., all single-family homes in ZIP code 98101). This is how we focus on actual market price changes, and not changes in the kinds of markets or property types that sell from month to month. 
+
+For this dataset, we can draw attention on the how the HVI change over time in difference places. and for future study, we can forecast the HVI for difference places for a specific time frame. This is will give us a big frame of the index trend and maybe insight of where people can choose to live in the future.
+
+```{r}
+HVI <- read.csv('./Data/ZHIV_all_home_mid_tier.csv')
+kable(head(HVI))%>%
+  kable_styling("striped", full_width = T)
+```
+
+#### **2. Average Price Cut in Percentage**
+
+The number of unique properties with a list price at the end of the month that's less than the list price at the beginning of the month, divided by the number of unique properties with an active listing at some point during the month. The mean and median price cut for listings in a given region during a given time period, expressed as both dollars (\$) and as a percentage (%) of list price
+
+```{r}
+pcut <- read.csv('./Data/price_cut_mean_percentage.csv')
+kable(head(pcut))%>%
+  kable_styling("striped", full_width = T)
+```
+
+#### **3. New Listings on the Market Monthly**
+
+```{r}
+nlist <- read.csv('./Data/new_listing_monthly.csv')
+kable(head(nlist))%>%
+  kable_styling("striped", full_width = T)
+```
+
+#### **4. Monthly Median Sale Price**
+
+```{r}
+salep <- read.csv('./Data/median_price.csv')
+kable(head(salep))%>%
+  kable_styling("striped", full_width = T)
+```
+
+### From Federal Housing Finance Agency (FHFA)
+
+#### 5. Monthly House Index
+
+```{r}
+HI <- read.csv('./Data/house_index.csv')
+kable(head(HI))%>%
+  kable_styling("striped", full_width = T)
+```
+
+## Mortgage Data
+
+### From Federal Housing Finance Agency (FHFA)
+
+#### 6. [National-based Mortgage Performance](https://www.fhfa.gov/DataTools/Downloads/Pages/National-Mortgage-Database-Aggregate-Data.aspx)
+
+The 2008 financial crisis began with cheap credit and lax lending standards that fueled a housing bubble. When the bubble burst, the banks were left holding trillions of dollars of worthless investments in subprime mortgages. The Great Recession that followed cost many their jobs, their savings, and their homes.
+
+For this dataset, we can draw attention on how the mortgage performance quarterly in different geospace, and catch the change.
+
+```{r}
+nmdb <- read.csv('./Data/mortgage_perform_nmdb.csv')
+kable(head(nmdb))%>%
+  kable_styling("striped", full_width = T)
+```
+
+More resources will be updated ...

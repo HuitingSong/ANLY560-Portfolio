@@ -1,0 +1,306 @@
+---
+title: Financial Time Series Models (ARCH/GARCH)
+code-fold: true
+---
+```{r,include=FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(forecast)
+library(astsa) 
+library(xts)
+library(tseries)
+library(fpp2)
+library(fma)
+library(lubridate)
+library(tidyverse)
+library(TSstudio)
+library(quantmod)
+library(tidyquant)
+library(plotly)
+library(ggplot2)
+library(gridExtra)
+library(FinTS)
+library(fGarch)
+```
+
+
+```{r,warning=FALSE,message=FALSE}
+hvi <- read_csv('./Data/Cleaned/HVI_cleaned.csv')
+hvi <- hvi %>%
+  filter(state == 'CA'& region_name =='Los Angeles')
+write_csv(hvi,"./Data/Cleaned/hvi_ca.csv")
+```
+
+```{r}
+plot_ly(hvi, x = ~date, y = ~index, type = 'scatter', mode = 'lines') %>%
+  layout(title = "Los Angeles House Value Index (2000 - 2022)",
+         xaxis = list(title = "Date"),
+         yaxis = list(title = "House Value Index",tickformat = ',.0fK'))
+```
+
+Over the last two decades, the HVI has shown an overall upward trend with some fluctuations in between. From 2000, the house value in Los Angeles steadily increased. Over a six-year period, home values climbed at a rate of $67,000 per year. It wasn't until 2007 that home values began to decrease significantly. The depressed housing market and negative home price trends continued through April 2012. After that peiod of time, the house value started to climbing upward gradually。Then, the house value turned to decrease again from July 2022.
+
+For the obvious dip after 2006, there were several factors that could have contributed to the value decline:
+
+- The Great Recession: The Great Recession, which lasted from 2007 to 2009, had a significant impact on the housing market. Many homeowners lost their homes due to foreclosure, and the housing market experienced a significant downturn. The impact of the recession can be seen in the HVI, which shows a decline in home values during this period.
+
+- The Housing Bubble: The housing bubble, which occurred from the late 1990s to the mid-2000s, was characterized by rapid increases in home prices driven by speculation and easy access to credit. When the bubble burst in 2006, home values plummeted, leading to a significant decline in the HVI.
+
+For the normal fluctuation in the house value index, here are some factors that may contribute to the changes:
+
+- Population Growth: California is a populous state that has experienced significant population growth over the years. Population growth can drive up demand for homes, leading to increased competition and higher home values. Therefore, the house value index will directly increas.
+
+- Interest Rates: As we have analyzed in the ARIMA/SARIMA model sector on the mortgage rate and the house value index in California, the relationship of these two terms are clearly stated. For example, when interest rates are low, it can make mortgages more affordable, leading to increased demand and higher home values. Conversely, when interest rates are high, it can make mortgages less affordable, leading to decreased demand and lower home values. While the great recession period, the mortgage rate was extremely high, so the less people can afford the house and then the house value index turned to decrease.
+
+- Housing Supply and Demand: Housing supply and demand dynamics can change rapidly due to real events such as changes in the economy, population growth, and local market conditions. For example, when there is a shortage of available housing, demand for homes will be high, leading to increased competition and higher home values. Conversely, when there is an oversupply of homes, demand will be low, leading to decreased competition and lower home values.
+
+Overall, the house value index can be affected by a wide range of factors, including economic events, regulatory changes, and population size.
+
+In this section, we will implement ARCH/GARCH models to model and forecast the volatility of the house value time series data. Our target will still be the house value index in Los Angeles. 
+
+## Model Fitting
+
+#### returns
+```{r}
+hvi_ts <- ts(hvi$index,start = c(2000,1),frequency = 12)
+```
+
+```{r}
+# calculate the Returns
+returns = log(hvi_ts) %>% diff()
+autoplot(returns) +ggtitle("Returns")
+```
+
+#### Look at the ACF, PACF plots of the returns
+```{r}
+ggAcf(returns,40)
+ggPacf(returns,40)
+```
+When we look closer at the ACF plot we can see it looks stationary. There is a decaying pattern which indicates a correlation among the lag. 
+
+#### Look at the ACF of absolute values of the returns and squared values
+
+```{r}
+ggAcf(abs(returns),40)
+ggAcf(returns^2,40)
+```
+We can see clear correlation in both plots. This correlation is comming from the correlation in conditional variation.
+
+#### Method 1: GARCH(p,q) model fitting
+
+We fit the ARIMA model first and fit a GARCH model for the residual.
+
+**ArchTest**
+
+We can check for ARCH effects by using the `ArchTest()` function. We will use a significance level of α=0.05 for our null hypothesis test.The null hypothesis is no ARCH(1) effect. 
+
+```{r}
+ArchTest(returns, lags=1, demean=TRUE)
+```
+
+Because the p-value is < 0.05, we reject the null hypothesis and conclude the presence of ARCH(1) effects.
+
+**Fitting an ARIMA model**
+
+```{r}
+# first order differecing
+hvi.diff <- log(hvi_ts) %>% diff()
+ggAcf(hvi.diff,40)
+ggPacf(hvi.diff,40)
+```
+
+The ACF shows the correlation among the lags and the stationary has not been eleminated, so we need to do the second differencing to make it non-stationary.
+
+```{r}
+# first order differecing
+hvi.diff2 <- log(hvi_ts) %>% diff() %>% diff()
+ggAcf(hvi.diff2,40)
+ggPacf(hvi.diff2,40)
+```
+
+After the second differencing, we can see the data become non-stationary since we cannot see large correlations.
+
+```{r}
+ARIMA.c=function(p1,p2,q1,q2,data){
+temp=c()
+d=2
+i=1
+temp= data.frame()
+ls=matrix(rep(NA,6*50),nrow=50)
+
+
+for (p in p1:p2)#
+{
+  for(q in q1:q2)#
+  {
+    for(d in 0:2)#
+    {
+      
+      if(p+d+q<=6)
+      {
+        
+        model<- Arima(data,order=c(p,d,q))
+        ls[i,]= c(p,d,q,model$aic,model$bic,model$aicc)
+        i=i+1
+  
+        
+      }
+      
+    }
+  }
+}
+
+
+temp= as.data.frame(ls)
+names(temp)= c("p","d","q","AIC","BIC","AICc")
+
+temp
+}
+```
+
+```{r}
+#na.omit(log(bts)))
+output <- ARIMA.c(0,3,0,3,data=log(hvi_ts))
+output
+```
+The model with minimum AIC and AICc is:
+```{r}
+output[which.min(output$AIC),]
+output[which.min(output$AICc),]
+```
+
+The model with minimum BIC is:
+
+```{r}
+output[which.min(output$BIC),]
+```
+Through comparing the AIC and BIC, one model is selected - **ARIMA(2,0,3)**
+
+
+```{r}
+auto.arima(log(hvi_ts))
+```
+
+The `auto.arima()` function choose the model **ARIMA(1,2,4)**. Through model comparison and model diagnosis, we will choose the final model.
+
+```{r}
+# ARIMA(2,0,3)
+data = log(hvi_ts)
+sarima(data, 2,0,3)
+```
+
+
+```{r}
+# ARIMA(1,2,4)
+sarima(data, 1,2,4)
+```
+I’m going to choose **ARIMA(1,2,4)** which is selected by `auto.arima()` because it has the lowest AIC and the whole model diagnostics are the same. From the Q-Q plot, there is a significant deviation from the straight line in the tails, especially in the lower tail, showing that the distribution of the returns is more heavy-tailed than the normal distribution. And for Ljung-Box statistic plot, p-value should be > 0.05, So that we do not have enough evidence to reject H0. (this is what we look for to say no correlation left). From the plot, except the lag 0, the p-value of all other lags are above 0.05, we can say that there is no correlation. The model is good. 
+
+**Fit the GARCH model**
+
+```{r}
+arima.fit<-Arima(data,order=c(1,2,4))
+arima.res<-arima.fit$residuals
+
+acf(arima.res)
+```
+The acf of residuals does not show any correlation ans stationary.
+
+```{r}
+acf(arima.res^2) #clear correlation 3
+```
+
+There is a clear correlation in lag 3 from the ACF plot of the squared residuals
+
+```{r}
+pacf(arima.res^2) 
+```
+
+There is a clear correlation in lag 2 from the PACF plot of the squared residuals.
+
+```{r,warning=FALSE}
+model <- list() ## set counter
+cc <- 1
+for (p in 1:3) {
+  for (q in 1:4) {
+  
+model[[cc]] <- garch(arima.res,order=c(q,p),trace=F)
+cc <- cc + 1
+}
+} 
+
+## get AIC values for model evaluation
+GARCH_AIC <- sapply(model, AIC) ## model with lowest AIC is the best
+which(GARCH_AIC == min(GARCH_AIC))
+```
+
+```{r}
+model[[which(GARCH_AIC == min(GARCH_AIC))]]
+```
+
+The minimum AIC choose the model GARCH(2,1). 
+
+```{r}
+summary(garchFit(~garch(2,1), arima.res,trace = F)) 
+```
+
+Since only alpha 2 is significant in 5% significant level, I will try GARCH(2,0)
+
+```{r}
+summary(garchFit(~garch(2,0), arima.res,trace = F)) #all significant AIC=-3.834
+```
+
+Since GARCH(2,0) has a lower AIC and BIC, I would go with GARCH(1,1) to forecast.
+
+**Final Model**
+```{r,warning=FALSE}
+summary(arima.fit<-Arima(data,order=c(1,2,4),include.drift = TRUE))
+```
+
+```{r}
+#arima.fit<-Arima(data,order=c(1,2,4))
+#arima.res<-arima.fit$residuals
+summary(final.fit <- garchFit(~garch(2,0), arima.res,trace = F)) 
+```
+
+- Jarque-Bera Test: This test checks whether the standardized residuals have a normal distribution. In this case, the test statistic is 87.70901 and the p-value is 0, indicating strong evidence against normality.
+
+- Shapiro-Wilk Test: This test also checks whether the standardized residuals have a normal distribution. In this case, the test statistic is 0.9640227 and the p-value is 2.227228e-06, again indicating strong evidence against normality.
+
+- Ljung-Box Test: This test checks for autocorrelation in the standardized residuals at various lags. The results show the test statistic, the number of lags tested (Q), and the p-value. The null hypothesis is that there is no autocorrelation in the residuals. In this case, the p-values are all greater than 0.05, suggesting that there is no evidence of significant autocorrelation.
+
+- LM Arch Test: This test also checks for autocorrelation in the standardized residuals. The test statistic is 25.51447 and the p-value is 0.01256454, indicating evidence of significant autocorrelation.
+
+```{r,warning=FALSE}
+fit<-garch(arima.res,order=c(2,1),trace=F)
+checkresiduals(fit) 
+```
+
+```{r}
+qqnorm(fit$residuals, pch = 1)
+qqline(fit$residuals, col = "blue", lwd = 2)
+```
+
+There is a significant deviation from the straight line in the tails, especially in the lower tail, showing that the distribution of the returns is more heavy-tailed than the normal distribution. This is ccomply with the density plot above which show a slightly left skewness.
+
+```{r}
+Box.test (fit$residuals, type = "Ljung")
+```
+
+From the  Box-Ljung test, the p-value is above 0.05, we can say that there is no correlation. The model is good. 
+
+**Model Formula**
+
+Finally, we choose the ARIMA(1,2,4) + GARCH(2,0) as our best model. 
+
+$\sigma(t)^2 = 9.4602 \times 10^{-6} + 1.0000 \times 10^{-8} \times Y(t-1)^2 + 1.7970 \times 10^{-1} \times \sigma(t-1)^2$
+
+#### Forecast
+
+```{r}
+predict(final.fit, n.ahead = 20, plot=TRUE)
+```
+My ARIMA(1,2,4)+GARCH(2,0) model is producing a horizontal line during the prediction phase, it could be an indication that the model is not adequately capturing the patterns in the data. A horizontal line suggests that the model is predicting that the variance of the time series will remain constant over time. This could be the case if the model is too simple and does not capture the changing patterns in the data, or if there is not enough variation in the data to support more complex modeling.
+
+## Discussion & Insight

@@ -1,0 +1,151 @@
+---
+title: "Data Visualization"
+code-fold: true
+---
+
+Data visualization is a way to represent information graphically, highlighting patterns and trends in data and helping the reader to achieve quick insights.
+
+# House Value Index Data set
+
+### Data Wrangling
+
+```{r, warning=FALSE,message=FALSE,include=FALSE}
+library(stringr)
+library(snakecase)
+library(lubridate)
+library(plotly)
+library(scales)
+library(tidyr)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+```
+
+```{r}
+# data wrangling
+HVI <- read.csv('./Data/ZHIV_all_home_mid_tier.csv')
+
+# convert the date column to rows 
+HVI <- HVI %>%
+  pivot_longer(
+    cols = starts_with("X"),
+    names_to = "Date",
+    names_prefix = "X",
+    values_to = "Index",
+    values_drop_na = TRUE
+  )
+
+# check NA 
+sum(is.na(HVI)) # no missing value
+
+# change the data type
+HVI$RegionName <- as.factor(HVI$RegionName)
+HVI$State <- as.factor(HVI$State)
+HVI$CountyName <- as.factor(HVI$CountyName)
+HVI$Date <- as.Date(HVI$Date,"%Y.%m.%d")
+
+# delete the unnecessary columns
+HVI <- select(HVI,-c(StateName,SizeRank,Metro))
+
+# sanke case the colnames
+colnames(HVI) <- to_snake_case(colnames(HVI))
+
+# finalized data
+write.csv(HVI,"./Data/Cleaned/HVI_cleaned.csv")
+
+kable(head(HVI))%>%
+  kable_styling("striped", full_width = T)
+
+```
+
+### Data Visualization
+
+```{r}
+HVI$year <- format(as.Date(HVI$date), format = "%Y")
+
+HVI_avg <- HVI %>%
+  filter(state %in% c('NY', 'CA','VA','MA'))%>%
+  group_by(region_id,region_name,year,county_name,state) %>% 
+  summarise(avg_index=mean(index)) %>% 
+  arrange(desc(year))
+
+write.csv(HVI_avg,"./Data/Cleaned/HVI_avg.csv")
+
+kable(head(HVI_avg))%>%
+  kable_styling("striped", full_width = T)
+```
+
+```{r}
+# count the number of unique counties in each state
+cty_count <- aggregate(county_name ~ state, data = HVI_avg, FUN = function(x) length(unique(x)))
+
+# create the bar plot
+ggplot(data = cty_count, aes(x = state, y = county_name, fill=state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = county_name), vjust = -0.5)+
+  xlab("State") + ylab("Number of Counties") +
+  ggtitle("Number of Counties in Different States")+
+  theme_classic()
+```
+
+In each states I choose, there are different county numbers. VA has the most county numbers in records, and MA has the least. Then, we can look for the how the HVI performs in county. For here, I want to obtain plots from CA and NY to see the top 10 highest HVI.
+
+```{r}
+df_ca_2022 <- HVI_avg %>%
+  filter(state == "CA", year == 2022) %>%
+  group_by(region_name) %>%
+  arrange(desc(avg_index))
+
+# top 10 
+df_ca_2022 <- head(df_ca_2022,10)
+
+color_scale <- c("lightblue", "lightgreen", "orange", "pink", "purple", "red", "blue", "green", "gray", "gold")
+
+p1 <- plot_ly(df_ca_2022, x =~region_name, y = ~avg_index, type = "bar", orientation = 'v',
+             marker = list(color = color_scale) )%>%
+  layout(title = "Top 10 Average Index Values by County in California (2022)", 
+         xaxis = list(title = "Region",tickvals = df_ca_2022$region_name), 
+         yaxis = list(title = "Average Index Value")
+         )
+p1
+```
+
+In CA, Atherton county has the highest average house value index in 2022. Its' HVI is far higher than other counties.
+
+```{r}
+df_ny_2022 <- HVI_avg %>%
+  filter(state == "NY", year == 2022) %>%
+  group_by(region_name)%>%
+  arrange(desc(avg_index)) %>%
+  head(10)
+
+color_scale <- c("lightblue", "lightgreen", "orange", "pink", "purple", "red", "blue", "green", "gray", "gold")
+
+p2 <- plot_ly(df_ny_2022, x =~avg_index, y = ~region_name, type = "bar", orientation = 'h',
+             marker = list(color = color_scale) )%>%
+  layout(title = "Top 10 Average Index Values by County in New York (2022)", 
+         xaxis = list(title = "Average Index Value"), 
+         yaxis = list(title = "Region",tickvals = reorder(df_ny_2022$region_name, df_ny_2022$avg_index))
+         )
+p2
+```
+
+In NY, Sagaponack county has the highest average house value index in 2022. Its' HVI is far higher than other counties.
+
+```{r}
+# filter data to top 10 regions for each year
+top_10_regions <- HVI_avg %>%
+  filter(state == "CA") %>%
+  group_by(year) %>%
+  slice_max(avg_index, n = 10) %>%
+  ungroup()
+
+# plot bar plot with facets by year
+ggplot(top_10_regions, aes(x = reorder(region_name, avg_index), y = avg_index, fill = region_name)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~year, scales = "free_x", nrow = 2) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = "Region", y = "Average Index Value", fill = "Region Name") +
+  ggtitle("Top 10 Average Index Values by County in California") +
+  theme(plot.title = element_text(hjust = 0.5))
+```

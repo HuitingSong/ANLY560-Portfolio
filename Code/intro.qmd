@@ -1,0 +1,57 @@
+---
+title: "Real Estate In U.S.A"
+---
+
+[![](images/5.JPG){.fragment fig-align="center" width="550" height="333"}](https://www.thebalancemoney.com/real-estate-what-it-is-and-how-it-works-3305882)
+
+### Background of Real Estate
+
+**Real estate** is a form of real property, meaning that it is something you own that is attached to a piece of land. It can be used for residential, commercial or industrial purposes, and typically includes any resources on the land such as water or minerals [(Bankrate, 2022)](https://www.bankrate.com/real-estate/what-is-real-estate/#:~:text=Real%20estate%20is%20a%20form,such%20as%20water%20or%20minerals.).
+
+-   *Residential real estate* is land that is vacant or developed for residential use. While ownership and occupancy of your home does not generate income, over time your property can develop substantial equity that can be leveraged to progress other financial goals. Nowadays, purchasing a house or apartment becomes a more and more common way for investment or making revenue, because the housing price will be changed with the economics, government policy, or neighborhood. A good facility around the house location or lower interest rate will positively influence the house price.
+
+-   *Commercial real estate* is utilized to engage in business or professional activities, such as hosting a commercial trade exhibition, for purpose of generating revenue.
+
+-   *Industrial real estate* is like farm, mines, and land containing factory. It also has the goal of earning profit.
+
+-   *Land real estate* is another type of real estate which is vacant and can be used for future development. Those four categories covers most of the types of real estate in the market. Usually the housing agent, money lenders, broker can be the ways for people to purchase the real property.
+
+![](images/6.JPG){fig-align="center" width="550"}
+
+### Market Status during the Financial Crisis in 2008
+
+The real estate market in 2008 was characterized by a significant downturn and the beginning of the global financial crisis. The housing bubble, which had been building up for several years, burst, leading to a sharp decline in housing prices and a high number of mortgage defaults.
+
+The crisis was triggered by the collapse of the subprime mortgage market, which had been fueling the housing boom. Many people who could not afford to buy homes had been given loans with very low interest rates, and these loans were then repackaged and sold to investors as mortgage-backed securities.
+
+When the housing market began to decline, many homeowners found themselves owing more on their mortgages than their homes were worth, and they began to default on their loans. As a result, the value of mortgage-backed securities plummeted, leading to massive losses for investors and financial institutions that had invested heavily in the real estate market.
+
+![](images/7.JPG){fig-align="center" width="550"}
+
+### Mortgage Rate and Real Estate Market
+
+Mortgage rates are determined by a number of factors, including inflation, economic growth, and the policies of the Federal Reserve. When the economy is strong and inflation is low, the Federal Reserve may raise interest rates to prevent the economy from overheating. This can lead to higher mortgage rates, which can dampen demand for housing.
+
+There is generally an inverse relationship between mortgage rates and the real estate market. When mortgage rates are low, it becomes more affordable for people to borrow money to buy homes, which can increase demand for housing and drive up prices. Conversely, when mortgage rates are high, it can make it more difficult for people to afford homes, which can lead to a decrease in demand and lower prices.
+
+### 10 Questions
+
+1.  What is the tendency of the house value of residential real estate?
+
+2.  What are the factors that influence the residential house price?
+
+3.  Does the listed price differ from the final sale price? / what is the expected price cut for purchasing a house?
+
+4.  What is the performance of state-base residential mortgage ?
+
+5.  what type of residential real estate has the larger ratio in applying mortgage?
+
+6.  Usually how long the mortgage term people select?
+
+7.  what is the relationship between purchasing price and mortgage?
+
+8.  Will residential real estate has shortage in house supply?
+
+9.  What is the relationship among affordability, house price, and mortgage rate?
+
+10. How does the mortgage rate refer to the economics? How does the economics influence residential real estate maket?

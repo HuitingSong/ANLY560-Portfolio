@@ -1,0 +1,324 @@
+---
+title: ARIMAX/SARIMAX/VAR models
+code-fold: true
+---
+
+Home index values can be influenced by a variety of factors such as interest rates, economic conditions, housing supply and demand, location, and other factors. Investigating the relationship between home index values and other variables such as average price cut percentage and new listing houses in a city can provide valuable insights into the dynamics of the local housing market.
+
+Bethel Cole-Smith and Daniel Muhammad have investiaged the relationship between house value and the house supply in 2020. Their analysis of house market in DC points out that the average annual number of new rental units demanded by renters has been increasing since 2000, and the city's housing market has responded by adding a corresponding number of new rental units each year. This has helped to keep the average citywide rent increases in line with the area's inflation rate.\[1\] The more listing house in rent tend to increase the house value in the area, so for the house to sell or buy, we expect the new listing house in market will influence the house value in a positive way.
+
+In addition, as most of people will do, when someone is considering a house, he/she may request a price cut. This is may because the original price is on the high side or people has another price expectation. For some places or houses, they have went through price cut many times, which makes the house value hard to measure now. In my understanding, multiple price cuts will make the house devalue because the price after each cut will be lower than the original owner's valuation of the house. But the actual influence on house price is waiting to be analysis.
+
+In this section, I will implement ARIMAX/SARIMAX model to analysis the relationship among house index value, price cut, and the new listing house in market. Then, using the best model to make prediction on the future house value and providing a insight on the analysis.
+
+*Reference:*<br> *\[1\] Bethel, J. R., Cole, S., & Smith, C. (2020). [Housing supply in the District of Columbia: Factors affecting the supply of housing units.](https://cfo.dc.gov/sites/default/files/dc/sites/ocfo/publication/attachments/Housing%20Supply%20Bethel%20Cole%20Smith%20April%202020.pdf) Office of the Chief Financial Officer, District of Columbia Government.*
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(forecast)
+library(astsa) 
+library(xts)
+library(tseries)
+library(fpp2)
+library(fma)
+library(lubridate)
+library(tidyverse)
+library(TSstudio)
+library(quantmod)
+library(tidyquant)
+library(plotly)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(gridExtra)
+```
+
+## Dataset Introduction
+
+The dataset created by merging three datasets downloaded from Zillow is a comprehensive collection of housing market data that provides insights into the dynamics of the housing market over time. It contains two key predictors: monthly new listing housing and monthly average price cut in percentage, and one response variable: home index value.
+
+-   `new_list` : Number of new listing house on the market
+-   `price_cut` : The mean price cut for listings in a given region during a given time period, expressed as a percentage (%) of list price.
+-   `hvi` : Home index value
+
+Based on the study in previous study, the house value and mortgage rate in Los Angeles, California have been analysis. In the section, we will still choose Los Angeles as the investigation region.
+
+```{r,warning=FALSE,message=FALSE}
+df <- read_csv("./Data/Cleaned/factors_cleaned.csv")
+df <- df %>%
+  filter(city == 'Los Angeles')%>%
+  select(-...1)
+
+kable(head(df))%>%
+  kable_styling("striped", full_width = T)
+```
+
+## ARIMAX/SARIMAX
+
+```{r}
+dd <- df %>%
+  select(-city,-state,-county_name,-year)
+  
+dd.ts<-ts(dd,start = c(2018,3),frequency = 12)
+
+autoplot(dd.ts[,c(2:4)], facets=TRUE) +
+  xlab("Year") + ylab("") +
+  ggtitle("Variables Influencing House Value Index in LA")
+```
+
+From 2018 to 2022, the housing value index in Los Angeles had a small dip in the middle of 2022, but it was steadily increasing in general. The monthly new listing house in the LA market was fluctuated over the years. From its visualization, we predict it has seasonality. For the average price cut in percentage, we cannot see a clear pattern but it also fluctuated over the years. Now we will need to understand the data.
+
+```{r}
+lg.dd<- dd #making a copy
+lg.dd$hvi<-log(dd$hvi)
+lg.dd$price_cut<-log(dd$price_cut)
+lg.dd$new_list<-log(dd$new_list)
+
+lg.dd.ts<-ts(lg.dd,start = c(2018,3),frequency = 12)
+
+autoplot(lg.dd.ts[,c(2:4)], facets=TRUE) +
+  xlab("Year") + ylab("") +
+  ggtitle("Variables Influencing House Value Index in LA")
+```
+
+We apply a log transformation to the dataset, and nothing changes for the trend and seasonality of variables except the change of scale of variables. I think we can keep using the log transformation as the analysis data.
+
+#### Fitting the model using 'auto.arima()\`
+
+```{r}
+xreg <- cbind(pc = lg.dd.ts[, "price_cut"],
+              nl = lg.dd.ts[, "new_list"])
+
+fit <- auto.arima(lg.dd.ts[, "hvi"], xreg = xreg)
+summary(fit)
+```
+
+Through the `auto.arima()` function, we get a ARIMAX model - a Regression model with ARIMA(4,1,0) errors.
+
+```{r}
+checkresiduals(fit)
+```
+
+Through the `auto.arima()` function, we get a ARIMAX model - a Regression model with ARIMA(4,1,0) errors. This model has less correlation and the residuals are normal distributed, so it actually is a good model.
+
+#### Fitting the model manually
+
+Here we will first have to fit the linear regression model predicting `HVI` using `new_list` and `price_cut`. Then for the `residuals`, we will fit an ARIMA/SARIMA model.
+
+**Linear Regression Model**
+
+```{r}
+dd$price_cut <- ts(dd$price_cut, start = c(2018,3),frequency = 12)
+dd$new_list <- ts(dd$new_list, start = c(2018,3),frequency = 12)
+dd$hvi <- ts(dd$hvi, start = c(2018,3),frequency = 12)
+
+############# First fit the linear model##########
+fit.reg <- lm(hvi ~ price_cut+new_list, data=dd)
+summary(fit.reg)
+```
+
+From the linear regression, the two predictors `price_cut` and `new_list` are all significant in 5% significant level.This indicates that they have significant impact on the house value index.
+
+\$ hvi = 1.777 \times 10\^5 + 2.059 \times 10\^7 \times \text{price_cut} - 7.410 \times \text{new_list} + \epsilon\$
+
+Holding all other predictors constant, we expect 2.059e+07 times increase in hvi per unit increase in price_cut. we expect -7.410 times decrease in hvi per unit increase in new_list. The intercept term of 1.777e+05 represents the predicted value of hvi when both predictor variables are zero.
+
+**Residuals**
+
+```{r}
+res.fit<-ts(residuals(fit.reg), start = c(2018,3),frequency = 12)
+############## Then look at the residuals ############
+par(mfrow=c(1,2))
+ggAcf(res.fit)
+ggPacf(res.fit)
+```
+
+The ACF indicates that there is correlation among the early lag. So we take differencing to see whether there are any changes.
+
+```{r}
+res.fit %>% diff() %>% ggtsdisplay() # first ordinary differencing
+res.fit %>% diff() %>% diff(12) %>% ggtsdisplay() # fist seasonal differencing
+```
+
+As we can see, after the first ordinary differencing, the data become stationary and no seasonality pattern.
+
+**Without differencing** p = 1 ; q = 1,2 ; d = 0 **First ordinary differencing** p = 0 ; q = 0 ; d = 1 **First seasonal differencing** P = 2 ; Q = 2 ; D = 1
+
+```{r}
+#write a funtion
+SARIMA.c=function(p1,p2,q1,q2,P1,P2,Q1,Q2,d1,d2,data){
+  
+  temp=c()
+  d=1
+  D=1
+  s=12
+  
+  i=1
+  temp= data.frame()
+  ls=matrix(rep(NA,9*20),nrow=20)
+  
+  
+  for (p in p1:p2)
+  {
+    for(q in q1:q2)
+    {
+      for(P in P1:P2)
+      {
+        for(Q in Q1:Q2)
+        {
+          for(d in d1:d2)
+       
+        {
+          if(p+d+q+P+D+Q<=9)
+          {
+            
+            model<- Arima(data,order=c(p-1,d,q-1),seasonal=c(P-1,D,Q-1))
+            ls[i,]= c(p-1,d,q-1,P-1,D,Q-1,model$aic,model$bic,model$aicc)
+            i=i+1
+            #print(i)
+            
+          }
+          
+        }
+      }
+    }
+    
+  }
+  
+  }
+  temp= as.data.frame(ls)
+  names(temp)= c("p","d","q","P","D","Q","AIC","BIC","AICc")
+  
+  temp
+  
+}
+
+output=SARIMA.c(p1=1,p2=2,q1=1,q2=3,P1=2,P2=3,Q1=2,Q2=3,d1=0,d2=1,data=res.fit)
+output
+```
+
+```{r}
+output[which.min(output$AIC),] 
+output[which.min(output$AICc),] 
+output[which.min(output$BIC),] 
+```
+
+The minimum AIC and BIC all indicates the best model should be ARIMA(0,1,0)x(1,1,1)\[12\]. However, it is different with the model `auto.arima()` choose. We will do model diagnosis to choose the best model.
+
+-   regression on SARIMA(0,1,0)(1,1,1)\[12\] errors
+
+```{r}
+model_output1 <- capture.output(sarima(res.fit, 0,1,0, 1,1,1,12)) 
+cat(model_output1[37:70], model_output1[length(model_output1)], sep = "\n")
+```
+
+-   regression on ARIMA(4,1,0)
+
+```{r}
+model_output2 <- capture.output(sarima(res.fit,4,1,0,0,0,0))
+cat(model_output2, model_output2[length(model_output2)], sep = "\n")
+```
+
+Both models look good, but the model ARIMA(4,1,0) selected by `auto.arima()` has lower AIC and has better performance in p-value for Ljung-Box statistic plot. In this part, ARIMA(4,1,0) is better, but we will use cross validation to take a furthur look.
+
+#### Cross validation
+
+```{r,warning=FALSE,message=FALSE}
+n=length(res.fit)
+k=22
+ 
+#n-k=36; 36/12=3;
+ 
+rmse1 <- matrix(NA, 3, 12)
+rmse2 <- matrix(NA, 3, 12)
+
+st <- tsp(res.fit)[1] + (k - 1)/12
+
+for(i in 1:3) {
+  xtrain <- window(res.fit, end = st + (i - 1))
+  xtest <- window(res.fit, start = st + (i - 1)+1/12)
+
+  # ARIMA(0,1,0)x(1,1,1)[12], ARIMA(4,1,0)
+
+  fit1 <- Arima(xtrain, order = c(0,1,0), seasonal = list(order = c(1,1,1), period = 12),
+                include.drift = TRUE, method = "ML")
+  fcast1 <- forecast(fit1, h = 12)
+
+  fit2 <- Arima(xtrain, order = c(4,1,0),
+                include.drift = TRUE, method = "ML")
+  fcast2 <- forecast(fit2, h = 12)
+
+  rmse1[i, ] <- sqrt((fcast1$mean - xtest)^2)
+  rmse2[i, ] <- sqrt((fcast2$mean - xtest)^2)
+}
+
+plot(1:12, colMeans(rmse1, na.rm = TRUE), type = "l", col = 2, xlab = "horizon", ylab = "RMSE")
+lines(1:12, colMeans(rmse2, na.rm = TRUE), type = "l", col = 3)
+legend("topright", legend = c("ARIMA(0,1,1)(1,1,1)[12]", "ARIMA(4,1,0)"), col = 2:3, lty = 1)
+
+```
+
+```{r}
+colMeans(rmse1,na.rm=TRUE)
+```
+
+```{r}
+colMeans(rmse2,na.rm=TRUE)
+```
+
+From the cross validation, it is hard to tell which model is better since there are intersector. So based on the previous analysis and the RMSE in CV, i will choose the regression on ARIMA(4,1,0) errors model. The the regression on ARIMA(4,1,0) errors model has the relatively low RMSE from the graph.
+
+```{r}
+xreg <- as.matrix(cbind(pc = dd[, "price_cut"],
+              nl = dd[, "new_list"]))
+
+
+fit_hvi <- Arima(dd$hvi,order=c(4,1,0),xreg=xreg)
+summary(fit_hvi)
+```
+
+#### Model diagnosis
+
+```{r}
+fit <- Arima(res.fit, order = c(4,1,0),
+                include.drift = TRUE)
+checkresiduals(fit)
+```
+
+The regression on ARIMA(4,1,0) errors model performs good. Less correlation and the errors look normal and more white noise.
+
+#### Forecast
+
+In order to forecast `hvi` variable, or the whole fit, we need to have forecasts of `new_list` and `price_cut`. Here I will be using auto.arima() to fit the new listing house and average price cuts variables.
+
+**Average Price cut in percentage**
+
+```{r}
+#fiting an ARIMA model to the price cut variable
+pc_fit<-auto.arima(dd$price_cut) 
+summary(pc_fit) 
+fpc<-forecast(pc_fit)
+```
+
+**Monthly new listing house on market**
+
+```{r}
+#fiting an ARIMA model to the new list variable
+nl_fit<-auto.arima(dd$new_list) 
+summary(nl_fit) 
+fnl<-forecast(nl_fit)
+```
+
+```{r,message=FALSE,warning=FALSE}
+fxreg <- cbind(pc = fpc$mean,
+              nl = fnl$mean)
+
+fcast <- forecast(fit_hvi, xreg=fxreg)
+autoplot(fcast) + xlab("Year") +
+  ylab("HVI")
+```
+
+Forecasting the house value index by forecasting the two predictors together will gives us the plot above. From the forecast line, we can make conclusion that the house value index will dip in the following 3 years.
+
+## Discussion & Insights

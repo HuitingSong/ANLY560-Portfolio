@@ -1,0 +1,33 @@
+---
+title: "Huiting Song"
+about: 
+  template: trestles
+  image: images/1.JPG
+  links:
+    - icon: linkedin
+      text: LinkedIn
+      href: https://www.linkedin.com/in/huiting-song/
+    - icon: github
+      text: Github
+      href: https://github.com/HuitingSong
+---
+
+Welcome to my website!
+
+This website contents my profile and the project I have done during my graduate study.
+
+## [Education]{.underline}
+
+**Georgetown University** \| Washington, D.C., U.S.A<br> M.S. in Data Science and Analytics \| August 20122 - May 2024
+
+**University of Connecticut** \| Storrs, CT, U.S.A<br> B.A in Economics and Statistics \| August 2018 - May 2022
+
+## [Experience]{.underline}
+
+**Yonyou Network Technology Co., Ltd.** \| Shenzhen, China <br> EPM Implementation Intern \| May 2021 - July 2021
+
+## [Activity]{.underline}
+
+**Chinese and American Corporation Association** \| UConn <br> PR Director \| August 2019 - April 2020
+
+**Asian / Asian American Mentoring Program** \| UConn <br> Mentor \| August 2019 - April 2020

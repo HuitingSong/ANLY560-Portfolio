@@ -1,0 +1,398 @@
+---
+title: ARMA/ARIMA/SARIMA Models
+code-fold: true
+---
+
+```{r,include=FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(forecast)
+library(astsa) 
+library(xts)
+library(tseries)
+library(fpp2)
+library(fma)
+library(lubridate)
+library(tidyverse)
+library(TSstudio)
+library(quantmod)
+library(tidyquant)
+library(plotly)
+library(ggplot2)
+library(gridExtra)
+```
+
+Autoregression is a time series model that uses observations from previous time steps as input to a regression equation to predict the value at the next time step. It is a very simple idea that can result in accurate forecasts on a range of time series problems.
+
+In this section, we will fit different time series models to the dataset to find out the best model in making predictions on house value and the mortgage rate.
+
+Part 1 - ARIMA model on quarterly average mortgage rate in California from 2002 to 2022 dataset
+
+Part 2 - SARIMA model on monthly house value index in California from 2000 to 2022 dataset
+
+## Part 1 - ARIMA model on quarterly average mortgage rate in California from 2002 to 2022 dataset
+
+```{r}
+mortgage <- read.csv('Data/mortgage_perform_nmdb.csv')
+mortgage_ca <- mortgage %>%
+  filter(GEONAME == "California")%>%
+  filter(MARKET =="Overall Market")%>%
+  filter(SERIES == "Percent 90 to 180 Days Past Due Date")
+
+rate <- ts(mortgage_ca$VALUE,start = c(2002,1),frequency = 4)
+autoplot(rate, main = 'Time series plot of Overall Market Mortgage Rate in CA')
+```
+
+```{r}
+# first order differencing
+rate %>% diff() %>% ggtsdisplay(main='first order differencing')
+# second -order differencing
+rate %>% diff() %>% diff() %>% ggtsdisplay(main='second order differencing')
+# check the stationary of second-order differencing
+adf.test(rate %>% diff() %>% diff())
+```
+
+From the EDA sector, we analysis the dataset of mortgage rate in California. The average mortgage rate fluctuated during the period from 2002 to 2022, and we found the original data is non-stationary which will impact our modelling so we implement the second-order differencing and ADF test to make sure the data is stationary or weak stationary. Finally, the dataset is stationary after differencing the second times.
+
+Based on the ACF and PACF plots above, we can determine the parameters of the AR(p), MA(q) in ARIMA (p,d,q) models. It looks like after second order differencing it looks more stationary. Sometimes, one could argue that this is over differenced. However, we would consider d=1,2 and check several combinations.
+
+**For First order differencing:**
+
+ACF Plot suggest -\> q=1,2,3,4 (highly significant spikes)
+
+PACF Plot suggest -\> p=1 (highly significant spikes)
+
+d = 1 since the first order
+
+**For Second order differencing:**
+
+ACF Plot suggest -\> q=0 since no highly significant spikes
+
+PACF Plot suggest -\> p=0 since no highly significant spikes
+
+d=2 since the second order
+
+```{r,warning=FALSE}
+######################## Check for different combinations ########
+
+i=1
+mort = data.frame()
+ls=matrix(rep(NA,6*20),nrow=20) # roughly nrow = 2x5x2
+
+
+for (p in 1:2)# p= 0,1 : 2
+{
+  for(q in 1:5)# q=0,1,2,3,4 :5
+  {
+    for(d in 1:2)# d=1,2 :2
+    {
+      
+      if(p-1+d+q-1<=7)
+      {
+        
+        model<- Arima(rate,order=c(p-1,d,q-1),include.drift=TRUE) 
+        ls[i,]= c(p-1,d,q-1,model$aic,model$bic,model$aicc)
+        i=i+1
+        #print(i)
+        
+      }
+      
+    }
+  }
+}
+
+mort= as.data.frame(ls)
+names(mort)= c("p","d","q","AIC","BIC","AICc")
+
+#temp
+knitr::kable(mort)
+```
+
+By using the `Arima()` function, we get all combinations with the parameters choose from the ACF and PACF plot. Now, we will make selection by finding the minimum BIC and AIC combination.
+
+```{r}
+mort[which.min(mort$AIC),]
+mort[which.min(mort$BIC),]
+mort[which.min(mort$AICc),]
+```
+
+The model with minimum AIC and AICc is ARIMA (1,1,0)
+
+The model with minimum BIC model is ARIMA (0,2,0)
+
+```{r}
+#  ARIMA (1,1,0)
+model110 <- capture.output(sarima(rate, 1,1,0))
+cat(model110, model110[length(model110)], sep = "\n")
+```
+
+From the Q-Q plot for ARIMA(1,1,0) , the tail and head of the standard residuals are not comply with the linear line but most of the value are in the reference line. And the AIC is -0.695, BIC is -0.606.
+
+```{r}
+# ARIMA (0,2,0)
+model020 <- capture.output(sarima(rate, 0,2,0))
+cat(model020, model020[length(model020)], sep = "\n")
+```
+
+From the Q-Q plot for ARIMA(0,2,0) , the value seems not comply with the reference line and has non-smooth pattern. And the AIC is -0.656, BIC is -0.627.
+
+Even though the BIC of ARIMA(0,2,0) is smaller than ARIMA(1,1,0), based on the residuals we will choose **ARIMA(1,1,0) as the best model**.
+
+```{r}
+# Auto arima
+auto.arima(rate)
+```
+
+The `auto.arima()` gives us the same model selection, this means that ARIMA(1,1,0) is a perfect model for predicting mortgage rate. Now, We will do the **model diagnosis** to find the best model.
+
+```{r}
+# model diagnosis
+fit110=Arima(rate,order=c(1,1,0),include.drift = TRUE) 
+checkresiduals(fit110)
+```
+
+Through the model diagnosis, we find that the model is quite good since the model has less correlation and errors look normal and more white noise. Then we can use this model to do the **forecast.**
+
+```{r}
+autoplot(forecast(fit110))
+```
+
+The mortgage rate forecasting shows that in the next following years til 2025, the mortgage rate tends to decrease. This is a good news for people who want to buy a house , but we notice that the rate will probability drop down to negative or below 0. The mortgage rate will never drop below zero due to the policy and the market regulation, so the model for forecasting and decision making should be considered carefully. Now we will use **benchmark methods** to forecast and see if there are any changes.
+
+```{r}
+# meanf
+f1<-meanf(rate, h=11) #mean
+checkresiduals(f1)#serial correlation ; Lung Box p <0.05
+
+# naive
+f2<-naive(rate, h=11) # naive method
+checkresiduals(f2)#serial correlation ; Lung Box p <0.05
+
+# snaive
+f3<-snaive(rate, h=11) #seasonal naive method
+checkresiduals(f3) #serial correlation ; Lung Box p <0.05
+```
+
+```{r}
+autoplot(rate) +
+  autolayer(meanf(rate, h=11),
+            series="Mean", PI=FALSE) +
+  autolayer(naive(rate, h=11),
+            series="Naïve", PI=FALSE) +
+  autolayer(snaive(rate, h=11),
+            series="Seasonal naïve", PI=FALSE) +
+  ggtitle("Forecasts for quarterly mortgage rate in California") +
+  xlab("Year") + ylab("Mortgage rate") +
+  guides(colour=guide_legend(title="Forecast"))
+```
+
+From the three benchmark methods, we can see that the seasonal naive performs better since it can capture the potential fluctuation.
+
+```{r}
+accuracy(fit110)
+accuracy(f1)
+accuracy(f2)
+accuracy(f3)
+```
+
+Through comparing the accuracy of our model and the benchmark methods, we can see that our model **Arima(1,1,0)** still perform better since it has the lowest RMSE = 0.163. Therefore, Arima(1,1,0) is the best model in the AR/MA/ARIMA section.
+
+## Part 2 - SARIMA model on monthly house value index in Los Angeles, California from 2000 to 2022 dataset
+
+Since the mortgage rate dataset focuses on the rate in california, we also filter the data records from california. The original dataset contains the index in lots of city in california, for convinience we choose los angeles as the representative city to predict the house index value.
+
+```{r,message=FALSE}
+hvi <- read_csv('./Data/Cleaned/HVI_cleaned.csv')
+hvi <- hvi %>%
+  filter(state == 'CA'& region_name =='Los Angeles')
+
+hvi_ts <- ts(hvi$index,start = c(2000,1),frequency = 12)
+autoplot(hvi_ts, main = 'House Value Index in Los Angeles,CA')
+```
+
+The house index value in LA was fluctuated in the last two decades. Around 2008, the real estate market went through a big crisis so we can see there was a big drop in house value after 2008 and it took LA a long time to get recovery from the crisis. After the 2012, the house value started to increase again.
+
+#### Stationary check and differencing
+
+```{r}
+# stationary check
+ggAcf(hvi_ts,60)
+adf.test(hvi_ts)
+```
+
+Obviously this series is not stationary because there is high serial correlation among the lag variables, and the Dickey-Fuller test indicates that the series is non-stationary since we reject the null hypothesis in 5% significant level.
+
+```{r}
+# decomposing 
+autoplot(decompose(hvi_ts))
+```
+
+From the original time series plot, we can see a clear upward trend. After the decomposing, We notice that the series has seasonality and also the trend is not linear.
+
+```{r}
+# differencing
+hvi_ts %>% diff() %>% ggtsdisplay() #first ordinary differencing
+hvi_ts %>% diff() %>% diff() %>% ggtsdisplay() # second order differencing
+hvi_ts %>% diff() %>% diff(lag=12) %>% ggtsdisplay() #second seasonal differencing
+hvi_ts %>% diff() %>% diff() %>% diff(lag=12) %>% ggtsdisplay() #do both
+```
+
+We do a second order seasonal differencing since the first ordinary differencing does not eliminate the seasonality. Based on the ACF and PACF of the differencing, we will get the parameters of SARIMA model.
+
+**From second ordinary differencing:** p = 0,2,3 ; d = 2 ; q = 0,2,3
+
+**From seasonal differencing:** P = 1,3 ; D = 2 ; Q = 1,3 ;
+
+#### Model selection
+
+```{r}
+#write a funtion
+SARIMA.c=function(p1,p2,q1,q2,P1,P2,Q1,Q2,data){
+  
+  #K=(p2+1)*(q2+1)*(P2+1)*(Q2+1)
+  
+  df=c()
+  d=2
+  D=2
+  s=12
+  
+  i=1
+  df = data.frame()
+  ls=matrix(rep(NA,9*42),nrow=42)
+  
+  
+  for (p in p1:p2)
+  {
+    if (p == 2) next
+    for(q in q1:q2)
+    {
+      if (q == 2) next
+      for(P in P1:P2)
+      {
+        if (P == 3) next
+        for(Q in Q1:Q2)
+        {
+          if (Q == 3) next
+          if(p+d+q+P+D+Q<=20)
+          {
+            
+            model<- Arima(data,order=c(p-1,d,q-1),seasonal=c(P-1,D,Q-1))
+            ls[i,]= c(p-1,d,q-1,P-1,D,Q-1,model$aic,model$bic,model$aicc)
+            i=i+1
+            #print(i)
+            
+          }
+          
+        }
+      }
+    }
+    
+  }
+  
+  
+  df= as.data.frame(ls)
+  names(df)= c("p","d","q","P","D","Q","AIC","BIC","AICc")
+  
+  df
+  
+}
+
+output=SARIMA.c(p1=1,p2=4,q1=1,q2=4,P1=2,P2=4,Q1=2,Q2=4,data=hvi_ts)
+knitr::kable(output)
+```
+
+```{r}
+output[which.min(output$AIC),] 
+output[which.min(output$BIC),] 
+output[which.min(output$AICc),] 
+```
+
+Based on the minimum AIC and BIC, we have :
+
+**The model with minimum AIC and AICc is ARIMA (0,2,3)(3,2,1)\[12\]** **The model with minimum BIC is ARIMA(0,2,3)(1,2,1)**
+
+Now, we do the model diagnosis to find the best model
+
+```{r}
+set.seed(123)
+model_output <- capture.output(sarima(hvi_ts, 0,2,3,3,2,1,12))
+cat(model_output[34:70], model_output[length(model_output)], sep = "\n")
+```
+
+```{r}
+model_output2 <- capture.output(sarima(hvi_ts, 0,2,3,1,2,1,12))
+cat(model_output2[29:61], model_output2[length(model_output2)], sep = "\n")
+```
+
+Through the model diagnosis, we can see that there is no significant correlation among the residuals,and the normal Q-Q plot indicates most of the value are comply with the reference line for both models. However, from the p-value of Ljung Box statistics, we can see all the lag are significant in ARIMA(0,2,3)(3,2,1)\[12\] and some lags may be insiginificant in the second model. In addition, The AIC for the first model is less than the second one. Therefore, we will pick the first model **ARIMA(0,2,3)(3,2,1)\[12\]** as our best model.
+
+```{r}
+auto.arima(hvi_ts)
+```
+
+#### Forecasting
+
+Based on the best model we select ARIMA(0,2,3)(3,2,1)\[12\], we do the forecast in house index value in LA.
+
+```{r}
+fit <- Arima(hvi_ts, order=c(0,2,3), seasonal=c(3,2,1))
+autoplot(forecast(fit))
+```
+
+In the following four years, the house index value in LA is going to decrease in generally. To be more specific, the HVI will still be fluctuated while dropping since we can see the curvature of the forecasting line. However, the confidence band is quite large, any house value within the confidence band is reasonable, so there is still prossibility for the house value to be higher than the value in 2022.
+
+Related to the PART 1 the forecast of mortgage rate in CA, if the mortgage rate is decreasing, the house value and sales activity will be increasing.
+
+Now, we compare the chosen model with a benchmark method.
+
+```{r}
+autoplot(hvi_ts) +
+  autolayer(meanf(hvi_ts),
+            series="Mean", PI=FALSE) +
+  autolayer(naive(hvi_ts),
+            series="Naïve", PI=FALSE) +
+  autolayer(snaive(hvi_ts),
+            series="SNaïve", PI=FALSE)+
+  autolayer(rwf(hvi_ts, drift=TRUE),
+            series="Drift", PI=FALSE)+
+  autolayer(forecast(fit), 
+            series="fit",PI=FALSE) +
+  guides(colour=guide_legend(title="Forecast by benchmark methods"))
+```
+
+From the plot we can notice that the SNAIVE and our SARIMA model performs better. For more prudent, we will need to chech the accuracy of the benchmark methods and make comparison.
+
+```{r}
+accuracy(meanf(hvi_ts))
+accuracy(naive(hvi_ts))
+accuracy(snaive(hvi_ts))
+accuracy(rwf(hvi_ts))
+accuracy(fit)
+```
+
+Through comparing the model RMSE, the RMSE of ourmodel ARIMA(0,2,3)(3,2,1) are much lower than any benchmark methods. Therefore, our fitted model is good.
+
+#### Seasonal cross validation
+
+-   Using 1 step ahead forecasts
+
+```{r}
+errors1 <- tsCV(hvi_ts, forecastfunction = snaive, h = 1)
+mean(errors1^2, na.rm = TRUE)
+```
+
+-   Using 12 steps ahead forecast
+
+```{r}
+errors12 <- tsCV(hvi_ts, forecastfunction = snaive, h = 12)
+mean(errors12^2, na.rm = TRUE)
+```
+
+The RMSE for the seasonal cross validation using 1 step ahead and 12 step ahead forecast is extremely large which is not reasonable. The model ARIMA(0,2,3)(3,2,1) still has the lowest RMSE compared with them, so the fitted model we choose from sarima is good in forecasting.
+
+## Discussion & Insight
+
+We think back to the Part 1 forecast on mortgage rate in CA. We can notice that while the mortgage rate in CA increased during the 2008 financial crisis, the corresponding house value during the same period in LA decreased. And while the mortgage rate decreased, the house value incresed. Mortgage rate and house value have a negative relationship.
+
+In Part 1, our model gives us insight of decreasing mortgage rate in the following 3 years, so we can expect that the house value is going to increase. Less mortgage rate will increase people willingness in purchasing a house since they will need to pay less money for loan. However, In Part 2, the forecast of LA house value shows a decrease in the following three years. This contradicts with our expectation. Even though there is probability for the house index value in LA to be upward trend, now we can only say that it is complex for us to know the change in real estate industry since there are many other factors that can influence the house market and house value. Therefore, we will need to do more in analysis the real estate market.

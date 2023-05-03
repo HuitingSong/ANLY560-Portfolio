@@ -1,0 +1,144 @@
+---
+title: EDA
+code-fold: true
+---
+
+Exploratory Data Analysis (EDA) refers to the critical process of performing initial investigations on data so as to discover patterns,to spot anomalies,to test hypothesis and to check assumptions with the help of summary statistics and graphical representations. In my project, I plan to use the data I cleaned previously to do EDA.
+
+## House Value Index In difference States and Regions Over Time
+
+The average house value index changed over time. By extracting out the state information of New York, Los Angelas, and Boston, we can see that the average HVI was generally increasing overtime. However, there was a average drop in around 2008 to 2012. At that period,the economic recession occurred and mainly caused by the mortgage. This hit the real estate market strongly and we can see the market spent a long time to recover.
+
+![](./images/tb-eda-1.png)
+
+In the state level, we can look at the difference of HVI over time, which can give us a idea of how the HVI change in state level. We can find that the economic recession hit the California the most since there was a big difference of average HVI comparing with the previous stage. But the recession seems impact the MA and NY less. And closer to recent time, the real estate market is upward trending.
+
+![](./images/tb-eda-2.png)
+
+## National-Based Mortgage Rate Perfomance Over Time
+
+Most people don't have the cash to simply buy a house. Instead, they use a mortgage, which is a loan to buy a home. After making a down payment of anywhere from 3% to 25%, they get a mortgage to cover the remaining costs of purchasing the home. If inflation rises significantly, the Fed might increase the federal funds rate to reduce the money supply and reduce the inflation rate. This increase in the federal funds rate can cause mortgage rates to rise --- and rising mortgage rates can decrease home buying demand, leading to a fall in home prices. Therefore, the mortgage rate and the house perchasing have a tight relationship.
+
+As we know, in 2008, the financial crisis began with cheap credit and lax lending standards that fueled a housing bubble. When the bubble burst, the banks were left holding trillions of dollars of worthless investments in subprime mortgages. The Great Recession that followed cost many their jobs, their savings, and their homes.
+
+![](./images/tb-eda-3.png)
+
+Obvious found from the performance plot presented by Tableau, during the 2008 the financial crisis period, the mortgage rate was much higher than other times. And then, the average mortgage rate has decreased for a long time. Between 2019 to 2020 , there was a short uptrend. But then drop again. Connected to the visualization of home index in the last part, the rising average mortgage rate we saw in 2008 correspond to the the lowering average home value.
+
+```{r,include=FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(forecast)
+library(astsa) 
+library(xts)
+library(tseries)
+library(fpp2)
+library(fma)
+library(lubridate)
+library(tidyverse)
+library(TSstudio)
+library(quantmod)
+library(tidyquant)
+library(plotly)
+library(ggplot2)
+library(gridExtra)
+```
+
+```{r}
+mortgage <- read.csv('Data/mortgage_perform_nmdb.csv')
+mortgage_ca <- mortgage %>%
+  filter(GEONAME == "California")%>%
+  filter(MARKET =="Overall Market")%>%
+  filter(SERIES == "Percent 90 to 180 Days Past Due Date")
+
+rate <- ts(mortgage_ca$VALUE,start = c(2002,1),frequency = 4)
+```
+
+```{r}
+autoplot(rate, main = 'Time series plot of Overall Market Mortgage Rate in CA')
+```
+
+#### Stationary Check
+
+Based on the previous data extraction in the home value part, I choose the overall market mortgage rate in California as the main research target. Still the similar performance from the average mortgage rate in national wide. The overall market mortgage rate climbed gradually after 2008 and reached to the highest in 2010. And then dropped dramatically.
+
+```{r}
+adf.test(rate)
+```
+
+from the Dickey-Fuller Test, the series is non-stationary series since we fail to reject the null hypothesis in 5% significant level.
+
+```{r}
+autoplot(decompose(rate))
+```
+
+```{r}
+autoplot(decompose(rate))
+```
+
+From the original time series plot, we cannot see the clear trend pattern. After the decomposing section, We notice that the series has seasonality and also the trend is not linear.
+
+```{r}
+gglagplot(rate,lags = 4) +ggtitle("Lag Plot for Overall Market Mortgage Rate in California")+xlab("Lags")+ylab("Yt")
+```
+
+From the lag plot, we can see that lag 1 have strong positive autocorrelation, and the lag 2 also shows a positive autocorrelation. These indicate the possibility of autocorrelation among lags and seasonality in the data.
+
+```{r}
+ggAcf(rate)
+ggPacf(rate)
+```
+
+In the figures, we can see that ACF is geometrically declining with lags. The PACF has 2 significant lags followed by a drop in PACF values and they become insignificant. With 2 significant PACF lags and gradually falling ACF, we can say that the series is an AR(2) process. The lags of AR are determined by the number of significant lags of PACF.
+
+```{r}
+rate %>% diff() %>% ggtsdisplay()
+rate %>% diff() %>% diff() %>% ggtsdisplay()
+```
+
+Since the series is non-stationary, we difference it for making it stationary, Through the first order differencing, we can see the gradually decaying lags in the ACF plot and the first lag is still significant in PACF. so the second order differencing is implemented. The result shows the second order differencing make the series stationary since the lags in ACF and PACF do not show the a pattern. Comparing with the original data, the differencing data is stationary.
+
+```{r}
+# check the stationary again
+adf.test(rate %>% diff() %>% diff())
+```
+
+From the Dickey-Fuller test, the p-value of the series has been dropped dramatically after second order differencing. We can reject the null hypothesis in 10% significant level and conclude that the series is stationary now.
+
+#### Moving Average Smoothing
+
+```{r}
+ma2 <- autoplot(rate, series="Data") +
+  autolayer(ma(rate,3), series="3-MA") +
+  xlab("Year") + ylab("Mortgage rate") +
+  ggtitle("Mortgage rate in California") +
+  scale_colour_manual(values=c("Data"="grey50","3-MA"="red"),
+                      breaks=c("Data","3-MA"))
+
+ma3 <- autoplot(rate, series="Data") +
+  autolayer(ma(rate,5), series="5-MA") +
+  xlab("Year") + ylab("Mortgage rate") +
+  ggtitle("Mortgage rate in California") +
+  scale_colour_manual(values=c("Data"="grey50","5-MA"="red"),
+                      breaks=c("Data","5-MA"))
+
+
+ma4 <- autoplot(rate, series="Data") +
+  autolayer(ma(rate,7), series="7-MA") +
+  xlab("Year") + ylab("Mortgage rate") +
+  ggtitle("Mortgage rate in California") +
+  scale_colour_manual(values=c("Data"="grey50","7-MA"="red"),
+                      breaks=c("Data","7-MA"))
+
+ma5 <- autoplot(rate, series="Data") +
+  autolayer(ma(rate,9), series="9-MA") +
+  xlab("Year") + ylab("Mortgage rate") +
+  ggtitle("Mortgage rate in California") +
+  scale_colour_manual(values=c("Data"="grey50","9-MA"="red"),
+                      breaks=c("Data","9-MA"))
+
+grid.arrange(ma2, ma3,ma4,ma5, nrow = 2, ncol=2)
+```
+
+Thee trend-cycle (in red) is smoother than the original data and captures the main movement of the time series without all of the minor fluctuations. We choose the order 3,5,7,9 to compare the smoothness of the trend-cycle estimate. From the plots we can notice that the 3-MA smoothing curve seems outperform.

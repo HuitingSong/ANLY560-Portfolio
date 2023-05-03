@@ -1,0 +1,199 @@
+---
+title: "Data Visualization"
+---
+
+## Data Visualization with Stock Data
+
+The stock data of three top oil companies - ConocoPhillips (COP), Shell (SHEL), Chevron (CVX)
+
+```{r ,echo=FALSE, message=FALSE, warning=FALSE}
+library(flipbookr)
+library(tidyverse)
+library(ggplot2)
+library(forecast)
+library(astsa) 
+library(xts)
+library(tseries)
+library(fpp2)
+library(fma)
+library(lubridate)
+library(tidyverse)
+library(TSstudio)
+library(quantmod)
+library(tidyquant)
+library(plotly)
+library(ggplot2)
+```
+
+```{r echo=FALSE, include=FALSE}
+
+options("getSymbols.warning4.0"=FALSE)
+options("getSymbols.yahoo.warning"=FALSE)
+
+tickers = c("COP","SHEL","CVX" )
+for (i in tickers){
+  getSymbols(i,
+             from = "2012-10-01",
+             to = "2022-12-01")}
+
+x <- list(
+  title = "date"
+)
+y <- list(
+  title = "value"
+)
+
+stock <- data.frame(COP$COP.Adjusted,
+                    SHEL$SHEL.Adjusted,
+                    CVX$CVX.Adjusted)
+
+
+stock <- data.frame(stock,rownames(stock))
+colnames(stock) <- append(tickers,'Dates')
+
+stock$date<-as.Date(stock$Dates,"%Y-%m-%d")
+head(stock)
+```
+
+### Static Plot by ggplot
+
+```{r echo=FALSE}
+ggplot(stock, aes(x=date)) +
+  geom_line(aes(y=COP, colour="ConocoPhillips"))+
+  geom_line(aes(y=SHEL, colour="Shell"))+
+  geom_line(aes(y=CVX, colour="Chevron"))+
+   labs(
+    title = "Stock Prices for the Oil Companies",
+    subtitle = "From 2013-2022",
+    x = "Date",
+    y = "Adjusted Closing Prices")+
+    theme(panel.background = element_rect(fill = "white", colour = "grey50"))+
+    guides(colour=guide_legend(title="Oil Companies")) 
+```
+
+The adjusted closing price is the stock price after paying off the dividends. From the graph of three companies' adjusted closing price from 2013 to 2022, we can see the the overall stock price was trending upward. The adjusted closing prices of Chevron and ConocoPhillips in 2022 were much higher than the prices in 2013, but Shell's 2022 adjusted closing prices was less volatile compared to 2013. On the other hands, there were two significant reductions, in 2015 and 2020. These dramatic decrease were usually caused by the fluctuated demand and supply of oil in the market. After that period of time, the stock price of oil industry companies were increasing gradually.
+
+### Interactive Plot by plotly
+
+```{r echo=FALSE}
+g4<- ggplot(stock, aes(x=date)) +
+  geom_line(aes(y=COP, colour="ConocoPhillips"))+
+  geom_line(aes(y=SHEL, colour="Shell"))+
+  geom_line(aes(y=CVX, colour="Chevron"))+
+   labs(
+    title = "Stock Prices for the Oil Companies",
+    subtitle = "From 2013-2022",
+    x = "Date",
+    y = "Adjusted Closing Prices")+
+    guides(colour=guide_legend(title="Oil Companies"))
+
+
+ggplotly(g4) %>%
+  layout(hovermode = "x")
+```
+
+The interactive plot of adjusted closing price of three oil companies shows the same tendency and change I have interpreted for the previous graph. However, the interactive plot can give us more details about the exact stock price and date. For example, through the entire time frame from 2013 to 2022, the lowest adjusted closing price for Chevron was 48.34 USD per share, for ConocoPhillips was 30.39 USD per share, and for Shell was 33.59 USD per share. This happened on March 18^th^ in 2020. By the end of 2022, Chevron's and ConocoPhillips's stock price have increased nearly three times compared to the lowest price. During 2020, the COVID-19 spread worldwide. People's demand and consumption of oil dropped, making oil oversupplied, so oil prices trended downward. The volatility of oil industry stock prices reflects well the current economic situation.
+
+## Ethereum plot using plotly
+
+Ethereum is cryptocurrency. The stock data of Ethereum (ETH-USD) is collected from Yahoo Finance.
+
+```{r echo=FALSE , message=FALSE, warning=FALSE, include=FALSE}
+Ether <- getSymbols("ETH-USD",auto.assign = FALSE, from = "2021-01-15",src="yahoo") 
+Ether=data.frame(Ether)
+Ether <- data.frame(Ether,rownames(Ether))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+colnames(Ether)[7] = "date"
+head(Ether)
+Ether$date<-as.Date(Ether$date,"%Y-%m-%d")
+str(Ether)
+```
+
+### Static Plot by ggplot
+
+```{r echo=FALSE}
+## ggplot
+Ether %>%
+  ggplot()+
+  geom_line(aes(y=ETH.USD.Adjusted,x=date),color="blue")+
+   labs(
+    title = "Adjusted Closing Prices for Ethereum",
+    subtitle = "From 2021-2023",
+    x = "Date",
+    y = "ETH Adjusted in USD")
+```
+
+From the plot, we can clearly see the fluctuation of Ethereum's stock price in a specific time period. In the short term, the price of Ethereum is highly volatile. For example, from May 2021 to around June 2021, in roughly one month the adjusted closing price of Ethereum experienced dramatic increases and decreases. In the long run, the Ether price is less volatile. The closing price now has changed very slightly compared to the price in January 2021.
+
+### Interactive Basic Line Plot by plotly
+
+```{r echo=FALSE}
+## plotly
+fig <- plot_ly(Ether, x = ~date, y = ~ETH.USD.Adjusted, type = 'scatter', mode = 'lines')
+
+fig <- fig %>% layout(title = "Basic line Plot")
+fig
+```
+
+The interactive plot provides us more detail of the changing in price of Ethereum. The highest adjusted closing price for Ethereum was 4812.087 USD per coin in Nov 8^th^ 2021. The lowest one was 993.637 USD per coin in Jun 18^th^ 2022. In less than a year, the price has dropped nearly five times. In addition, by comparing the Ether price at the very beginning of the time period and at the very end, we will find that the Ether price fluctuation is only nearly \$400 per coin. These data support my interpretation of the high price volatility of Ethereum in the short term and low volatility in long term. Sometimes speculators are eager to make quick profits from trading Ethereum, so they buy and sell cryptocurrency very quickly and frequently, leading to short-term fluctuations in their prices.
+
+### Interactive Basic Candlestick Plot by plotly
+
+The candlestick chart is the most common financial plot we will see in the stock market. It provides us the price movement with displaying the high,low,open,and close price of a security for a specific time period. When the real body of candlestick, that is the price range or bar in the graph, is filled in green color, it means the close was higher than the open. If the real body is filled in red, it means the close was lower than the open.
+
+```{r echo=FALSE}
+#plotly
+# candlestick plot
+
+df <- tail(Ether, 30)
+
+figc <- df %>% plot_ly(x = ~date, type="candlestick",
+          open = ~ETH.USD.Open, close = ~ETH.USD.Close,
+          high = ~ETH.USD.High, low = ~ETH.USD.Low) 
+figc <- figc %>% layout(title = "Basic Candlestick Chart")
+
+figc
+```
+
+In this graph, we extract the last 30 days data from yahoo finance. It is clearly to see that in the past 30 days, the price movement of Ethereum was trending upward, and the close price was higher than the open in most of the time. Therefore, in general, the price of Ethereum is going up.
+
+## Plot The Climate Data (climate.csv) Using Plotly.
+
+Based on the climate data, there are 6 levels in variable `Name`. I plan to extract the data of level `National Arboretum DC, MD US`and then visualizing the data through plotly. Before visualizing the climate data, data processing is necessary since there are some missing value. By filling the missing value, The average of the variable in column will be applied.
+
+### Interactive Base Line Plot of Temperature in National Arboretum
+
+```{r echo=FALSE,include=FALSE}
+climate <- read.csv("Data/climate.csv")
+head(climate)
+unique(climate$NAME)
+```
+
+```{r echo=TRUE,include=FALSE}
+df <- filter(climate,climate$STATION == "USC00186350")
+df$TOBS <- as.integer(na.aggregate(df$TOBS))
+df$TMAX <- as.integer(na.aggregate(df$TMAX))
+df$TMIN <- as.integer(na.aggregate(df$TMIN))
+df$DATE<- as.Date(df$DATE,"%Y-%m-%d")
+```
+
+```{r echo=FALSE}
+a<- ggplot(df, aes(x=DATE)) +
+  geom_line(aes(y=TMAX, colour="TMAX"))+
+  geom_line(aes(y=TMIN, colour="TMIN"))+
+  geom_line(aes(y=TOBS, colour="TOBS"))+
+   labs(
+      title = "Plot of Temperature in National Arboretum",
+    subtitle = "From 2021.01-2021.09",
+    x = "Date",
+    y = "Temperature")+
+    guides(colour=guide_legend(title="Labels"))
+
+
+ggplotly(a) %>%
+  layout(hovermode = "x")
+```
+
+From the interactive base line plot of the temperature data in National Arboretum, the observed temperature was mostly near the minimum temperature. During the January and Feburary, the temperature there was the lowest. The lowest temperature of TMAX in the time frame was 33 F and the highest temperature was 99 F, so the maximum temperature difference in the time frame would be 66 F which is obviously large.
