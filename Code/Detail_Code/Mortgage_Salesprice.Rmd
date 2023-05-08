@@ -1,0 +1,296 @@
+---
+title: "EDA - Mortgage Rate & Median Sales Price & Home value index"
+author: "Huiting Song"
+output: html_document
+---
+
+```{r,message=FALSE,warning=FALSE}
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+library(forecast)
+library(tseries)
+library(grid)
+library(gridExtra)
+```
+
+## data processing
+
+```{r,message=FALSE,warning=FALSE}
+rate <- read.csv("/Users/crystal/Desktop/ANLY560/Final_Project/ANLY-560-website/Data/30yr_fixed_rate.csv")
+rate <- rate %>%
+  select(Week,X30yr.FRM)%>%
+  mutate(date=as.Date(Week,format="%m/%d/%y"))%>%
+  select(-Week)%>%
+  rename('rate'='X30yr.FRM')%>%
+  mutate(year = format(date, "%Y"), month = format(date, "%m"))
+
+cleaned_r <- rate %>%
+  group_by(year,month)%>%
+  summarise(rate = mean(rate))%>%
+  ungroup()
+
+cleaned_r <- cleaned_r %>%
+  mutate(month = as.numeric(month))%>%
+  filter(month %in% c(1,4,7,10))%>%
+  mutate(date = as.Date(paste(month, "01", year, sep = "/"), format = "%m/%d/%Y"))%>%
+  select(-month,-year)
+
+write_csv(cleaned_r,'/Users/crystal/Desktop/ANLY560/Final_Project/ANLY-560-website/Data/Cleaned/fixedrate.csv')
+```
+
+```{r,message=FALSE,warning=FALSE}
+home <- read_csv('/Users/crystal/Desktop/ANLY560/Final_Project/ANLY-560-website/Data/MSPUS.csv')
+home <- home %>%
+  mutate(date = as.Date(DATE,format="%m/%d/%y"))%>%
+  select(-DATE)%>%
+  rename('mediansales' = 'MSPUS')
+
+write_csv(home,'/Users/crystal/Desktop/ANLY560/Final_Project/ANLY-560-website/Data/Cleaned/medianprice.csv')
+```
+
+```{r}
+df <- merge(cleaned_r,home,by=c('date'))
+
+write.csv(df,'/Users/crystal/Desktop/ANLY560/Final_Project/ANLY-560-website/Data/Cleaned/pricerate.csv')
+```
+
+```{r}
+hvi <- read.csv('/Users/crystal/Desktop/ANLY560/Final_Project/ANLY-560-website/Data/Cleaned/HVI_ca.csv')
+```
+
+## visualzation
+
+```{r}
+rate_ts <- ts(cleaned_r$rate,frequency = 4,start = c(1972,1))
+home_ts <- ts(home$mediansales,frequency = 4,start = c(1972,1))
+hvi_ts <- ts(hvi$index,frequency = 12,start = c(2000,1))
+
+fig1 <- plot_ly() %>%
+  add_lines(x = df$date, y = df$rate, name = "Interest Rate", yaxis = "y1") %>%
+  layout(title = "30 Years Fixed Mortgage Rate and Median Home Sales Price from 1972 to 2022",
+         xaxis = list(title = "Date"),
+         yaxis = list(title = "Rate", side = "left"),
+         yaxis2 = list(title = "Price", side = "right", overlaying = "y")) %>%
+  add_trace(x = df$date, y = df$mediansales, name = "Median Sales Price", yaxis = "y2", type = "scatter", mode = "lines")
+
+fig1
+
+fig2 <- plot_ly() %>%
+  add_lines(x = hvi$date, y = hvi$index, name = "Home Value Index") %>%
+  layout(title = "Home Value Index in Los Angeles from 2000 to 2022",
+         xaxis = list(title = "Date"),
+         yaxis = list(title = "HVI"))
+
+fig2
+```
+
+## Mortgage rate
+
+#### stationary check
+
+```{r}
+ggAcf(rate_ts)
+ggPacf(rate_ts)
+adf.test(rate_ts) #non-stationary
+```
+
+#### Decomposition
+
+```{r}
+autoplot(decompose(rate_ts))
+```
+
+#### Lag plot
+
+```{r}
+gglagplot(rate_ts)
+```
+
+#### differencing
+
+```{r}
+# first order
+rate_ts %>% diff() %>% ggtsdisplay()
+# check the stationary again
+adf.test(rate_ts %>% diff()) # stationary
+```
+
+#### Moving average smoothing
+
+```{r}
+ma2 <- autoplot(rate_ts, series="Data") +
+  autolayer(ma(rate_ts,3), series="3-MA") +
+  xlab("Year") + ylab("Mortgage rate") +
+  ggtitle("30 Years Fixed Mortgage rate") +
+  scale_colour_manual(values=c("Data"="grey50","3-MA"="red"),
+                      breaks=c("Data","3-MA"))
+
+ma3 <- autoplot(rate_ts, series="Data") +
+  autolayer(ma(rate_ts,5), series="5-MA") +
+  xlab("Year") + ylab("Mortgage rate") +
+  ggtitle("30 Years Fixed Mortgage rate") +
+  scale_colour_manual(values=c("Data"="grey50","5-MA"="red"),
+                      breaks=c("Data","5-MA"))
+
+
+ma4 <- autoplot(rate_ts, series="Data") +
+  autolayer(ma(rate_ts,11), series="11-MA") +
+  xlab("Year") + ylab("Mortgage rate") +
+  ggtitle("30 Years Fixed Mortgage rate") +
+  scale_colour_manual(values=c("Data"="grey50","11-MA"="red"),
+                      breaks=c("Data","11-MA"))
+
+ma5 <- autoplot(rate_ts, series="Data") +
+  autolayer(ma(rate_ts,23), series="23-MA") +
+  xlab("Year") + ylab("Mortgage rate") +
+  ggtitle("30 Years Fixed Mortgage rate") +
+  scale_colour_manual(values=c("Data"="grey50","23-MA"="red"),
+                      breaks=c("Data","23-MA"))
+
+grid.arrange(ma2, ma3,ma4,ma5, nrow = 2, ncol=2)
+```
+
+## Median Sale price
+
+#### stationary check
+
+```{r}
+ggAcf(home_ts)
+ggPacf(home_ts)
+adf.test(home_ts) #non-stationary
+```
+
+#### Decomposition
+
+```{r}
+autoplot(decompose(home_ts))
+```
+
+#### Lag plot
+
+```{r}
+gglagplot(home_ts,12)
+```
+
+#### differencing
+
+```{r}
+# first order
+home_ts %>% diff() %>% ggtsdisplay()
+# check the stationary again
+adf.test(home_ts %>% diff()) # stationary
+
+# second order 
+home_ts %>% diff() %>% diff() %>% ggtsdisplay()
+# check the stationary again
+adf.test(home_ts %>% diff() %>% diff()) # stationary
+```
+
+#### Moving average smoothing
+
+```{r}
+ma2 <- autoplot(home_ts, series="Data") +
+  autolayer(ma(home_ts,3), series="3-MA") +
+  xlab("Year") + ylab("Median Sales Price") +
+  ggtitle("Median Sales Price") +
+  scale_colour_manual(values=c("Data"="grey50","3-MA"="red"),
+                      breaks=c("Data","3-MA"))
+
+ma3 <- autoplot(home_ts, series="Data") +
+  autolayer(ma(home_ts,5), series="5-MA") +
+  xlab("Year") + ylab("Median Sales Price") +
+  ggtitle("Median Sales PriceS") +
+  scale_colour_manual(values=c("Data"="grey50","5-MA"="red"),
+                      breaks=c("Data","5-MA"))
+
+
+ma4 <- autoplot(home_ts, series="Data") +
+  autolayer(ma(home_ts,11), series="11-MA") +
+  xlab("Year") + ylab("Median Sales Price") +
+  ggtitle("Median Sales Price") +
+  scale_colour_manual(values=c("Data"="grey50","11-MA"="red"),
+                      breaks=c("Data","11-MA"))
+
+ma5 <- autoplot(home_ts, series="Data") +
+  autolayer(ma(home_ts,23), series="23-MA") +
+  xlab("Year") + ylab("Median Sales Price") +
+  ggtitle("Median Sales Price") +
+  scale_colour_manual(values=c("Data"="grey50","23-MA"="red"),
+                      breaks=c("Data","23-MA"))
+
+grid.arrange(ma2, ma3,ma4,ma5, nrow = 2, ncol=2)
+```
+
+## Home value index
+
+#### stationary check
+
+```{r}
+ggAcf(hvi_ts)
+ggPacf(hvi_ts)
+adf.test(hvi_ts) #non-stationary
+```
+
+#### Decomposition
+
+```{r}
+autoplot(decompose(hvi_ts))
+```
+
+#### Lag plot
+
+```{r}
+gglagplot(hvi_ts,24)
+```
+
+#### differencing
+
+```{r}
+# first order
+hvi_ts %>% diff() %>% ggtsdisplay()
+# check the stationary again
+adf.test(hvi_ts %>% diff()) # stationary
+
+# second order 
+hvi_ts %>% diff() %>% diff() %>% ggtsdisplay()
+# check the stationary again
+adf.test(hvi_ts %>% diff() %>% diff()) # stationary
+```
+
+#### Moving average smoothing
+
+```{r}
+ma2 <- autoplot(hvi_ts, series="Data") +
+  autolayer(ma(hvi_ts,5), series="5-MA") +
+  xlab("Year") + ylab("HVI") +
+  ggtitle("HVI in LA") +
+  scale_colour_manual(values=c("Data"="grey50","5-MA"="red"),
+                      breaks=c("Data","5-MA"))
+
+ma3 <- autoplot(hvi_ts, series="Data") +
+  autolayer(ma(hvi_ts,11), series="11-MA") +
+  xlab("Year") + ylab("HVI") +
+  ggtitle("HVI in LAS") +
+  scale_colour_manual(values=c("Data"="grey50","11-MA"="red"),
+                      breaks=c("Data","11-MA"))
+
+
+ma4 <- autoplot(hvi_ts, series="Data") +
+  autolayer(ma(hvi_ts,19), series="19-MA") +
+  xlab("Year") + ylab("HVI") +
+  ggtitle("HVI in LA") +
+  scale_colour_manual(values=c("Data"="grey50","19-MA"="red"),
+                      breaks=c("Data","19-MA"))
+
+ma5 <- autoplot(hvi_ts, series="Data") +
+  autolayer(ma(hvi_ts,31), series="31-MA") +
+  xlab("Year") + ylab("HVI") +
+  ggtitle("HVI in LA") +
+  scale_colour_manual(values=c("Data"="grey50","31-MA"="red"),
+                      breaks=c("Data","31-MA"))
+
+grid.arrange(ma2, ma3,ma4,ma5, nrow = 2, ncol=2)
+```
